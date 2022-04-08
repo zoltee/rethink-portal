@@ -1,11 +1,8 @@
 var BCUser;
 var BCUserAttributes;
 var brainCloudClient = new BrainCloudWrapper("_mainWrapper");
-brainCloudClient.initialize(
-	"13623",
-	"6e7b30d8-265d-47d9-a8dd-5ea1da75258e",
-	"1.0.0"
-);
+brainCloudClient.initialize(BCAppId, BCSecret, BCVersion);
+
 const LSPrefix = 'Rethink.';
 brainCloudClient.brainCloudClient.enableLogging(true);
 function isUserLoggedIn() {
