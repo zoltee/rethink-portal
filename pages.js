@@ -23,7 +23,7 @@ $(function() {
     }
 });
 class Page{
-    bcUser:BCUser;
+    bcUser;
     constructor() {
         this.bcUser = new BCUser(BCAppId, BCSecret, BCVersion);
     }
