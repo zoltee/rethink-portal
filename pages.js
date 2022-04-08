@@ -37,7 +37,7 @@ class HomePage extends Page{
         }
     }
 }
-class Authenticate extends Page{
+class AuthenticatePage extends Page{
     constructor() {
         super();
         const emailInput = $('#email');
