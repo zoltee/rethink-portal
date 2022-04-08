@@ -41,7 +41,7 @@ class AuthenticatePage extends Page{
     constructor() {
         super();
         const emailInput = $('#email');
-        emailInput.val(readLS('email') ?? '');
+        emailInput.val( this.bcUser.readLS('email') ?? '');
         $('#register-button').click(event =>{
             if (!this.validateEmail(emailInput)){
                 event.preventDefault();
