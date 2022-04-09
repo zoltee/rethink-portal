@@ -32,8 +32,14 @@ class Page{
 class HomePage extends Page{
     constructor() {
         super();
-        if (!this.bcUser.isUserLoggedIn()){
+        const isLoggedIn = this.bcUser.isUserLoggedIn();
+        if (isLoggedIn === null){
             document.location.href = '/authenticate';
+        }
+        if (isLoggedIn === false){
+            this.bcUser.reconnectUser().catch(()=>{
+                document.location.href = '/authenticate';
+            });
         }
     }
 }
@@ -150,10 +156,10 @@ class SelectPasswordPage extends Page{
         this.bcUser.showError("Passwords don't match");
         return false;
     }
-    register(email, password){
+    async register(email, password){
         const $emailForm = $('#email-form').hide();
         const $loading = $('#loading').show();
-        this.bcUser.loginUser(email, password, true)
+        await this.bcUser.loginUser(email, password, true)
             .then(data => {
                 if(data && data.newUser === "false"){
                     document.location.href = '/';
