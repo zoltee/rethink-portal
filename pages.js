@@ -66,8 +66,8 @@ class AuthenticatePage extends Page{
         const emailInput = $('#email');
         emailInput.val( this.bcUser.readLS('email') ?? '');
         $('#register-button,#login-button').click(event =>{
+            event.preventDefault();
             if (!this.validateEmail(emailInput)){
-                event.preventDefault();
                 this.bcUser.showError('Invalid email address');
             }
             this.bcUser.emailExists(emailInput.val()).then(exists => {
@@ -135,8 +135,9 @@ class PickUsernamePage extends Page{
         const usernameInput = $('#username');
         usernameInput.val(this.bcUser.readLS('username') ?? '');
         $('#next-button').click(event => {
+            event.preventDefault();
             if (!this.validateUsername(usernameInput)){
-                event.preventDefault();
+                document.location.href = $("#next-button").attr('href');
             }
         });
     }
