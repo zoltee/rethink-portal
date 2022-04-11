@@ -107,6 +107,9 @@ class BCUser{
 
 	async logout() {
 		localStorage.removeItem(BCUser.LSPrefix+"BC-User");
+		localStorage.removeItem(BCUser.LSPrefix+"email");
+		localStorage.removeItem(BCUser.LSPrefix+"username");
+		localStorage.removeItem(BCUser.LSPrefix+"headset-code");
 		return new Promise((resolve, reject) => {
 			this.brainCloudClient.playerState.logout(result => {
 				console.log('logout', result);

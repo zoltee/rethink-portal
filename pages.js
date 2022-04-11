@@ -35,6 +35,7 @@ class HomePage extends Page{
     constructor() {
         super();
         this.redirect();
+        this.initialize();
     }
     redirect(){
         const isLoggedIn = this.bcUser.isUserLoggedIn();
@@ -46,6 +47,14 @@ class HomePage extends Page{
                 document.location.href = '/authenticate';
             });
         }
+    }
+    initialize(){
+        $('#logout-link').click(event=>{
+            event.preventDefault();
+            this.bcUser.logout().then(()=>{
+                this.redirect();
+            });
+        });
     }
 }
 class AuthenticatePage extends Page{
