@@ -1,25 +1,27 @@
 $(function() {
-    if (reThinkPage) {
-        switch (reThinkPage) {
-            case 'Home':
-                new HomePage();
-                break;
-            case 'Authenticate':
-                new AuthenticatePage();
-                break;
-            case 'Login':
-                new LoginPage();
-                break;
-            case 'Pick Username':
-                new PickUsernamePage();
-                break;
-            case 'Select Password':
-                new SelectPasswordPage();
-                break;
-            case 'Confirm Email':
-                new ConfirmEmailPage();
-                break;
-        }
+    switch (reThinkPage) {
+        default:
+        case 'Home':
+            new HomePage();
+            break;
+        case 'Authenticate':
+            new AuthenticatePage();
+            break;
+        case 'Login':
+            new LoginPage();
+            break;
+        case 'Pick Username':
+            new PickUsernamePage();
+            break;
+        case 'Select Password':
+            new SelectPasswordPage();
+            break;
+        case 'Confirm Email':
+            new ConfirmEmailPage();
+            break;
+        case 'Pair Headset':
+            new PairHeadsetPage();
+            break;
     }
 });
 class Page{
@@ -32,6 +34,9 @@ class Page{
 class HomePage extends Page{
     constructor() {
         super();
+        this.redirect();
+    }
+    redirect(){
         const isLoggedIn = this.bcUser.isUserLoggedIn();
         if (isLoggedIn === null){
             document.location.href = '/authenticate';
@@ -46,20 +51,23 @@ class HomePage extends Page{
 class AuthenticatePage extends Page{
     constructor() {
         super();
+        this.initialize();
+    }
+    initialize(){
         const emailInput = $('#email');
         emailInput.val( this.bcUser.readLS('email') ?? '');
-        $('#register-button').click(event =>{
+        $('#register-button,#login-button').click(event =>{
             if (!this.validateEmail(emailInput)){
                 event.preventDefault();
                 this.bcUser.showError('Invalid email address');
             }
+            this.bcUser.emailExists(emailInput.val()).then(exists => {
+                document.location.href = exists ? '/login' : '/pick-username';
+            }).catch(error => {
+                this.bcUser.showError(error);
+            });
         });
-        $('#login-button').click(event =>{
-            if (!this.validateEmail(emailInput)){
-                event.preventDefault();
-                this.bcUser.showError('Invalid email address');
-            }
-        });
+
     }
     validateEmail(emailInput){
         const email = emailInput.val();
@@ -73,6 +81,9 @@ class AuthenticatePage extends Page{
 class LoginPage extends Page{
     constructor() {
         super();
+        this.initialize();
+    }
+    initialize(){
         const passwordInput = $('#password');
         $('#signin-button').click(event =>{
             event.preventDefault();
@@ -109,6 +120,9 @@ class LoginPage extends Page{
 class PickUsernamePage extends Page{
     constructor() {
         super();
+        this.initialize();
+    }
+    initialize(){
         const usernameInput = $('#username');
         usernameInput.val(this.bcUser.readLS('username') ?? '');
         $('#next-button').click(event => {
@@ -130,14 +144,20 @@ class PickUsernamePage extends Page{
 class SelectPasswordPage extends Page{
     constructor() {
         super();
+        this.initialize();
+    }
+    initialize(){
         const passwordInput = $('#password');
         const passwordAgainInput = $('#password-again');
+        const email = this.bcUser.readLS('email');
+        $('email-address').text(email);
         $('#next-button').click(event => {
             event.preventDefault();
             if (this.validatePassword(passwordInput) && this.comparePasswords(passwordInput, passwordAgainInput)) {
-                this.register(this.bcUser.readLS('email'), passwordInput?.val());
+                this.register(email, passwordInput?.val());
             }
         });
+
     }
     validatePassword(passwordInput){
         const password = passwordInput?.val();
@@ -159,48 +179,33 @@ class SelectPasswordPage extends Page{
     async register(email, password){
         const $emailForm = $('#email-form').hide();
         const $loading = $('#loading').show();
-        await this.bcUser.loginUser(email, password, true)
-            .then(data => {
-                if(data && data.newUser === "false"){
-                    document.location.href = '/';
-                } else {
-                    document.location.href = $('#next-button').attr('href');
-                }
-            })
-            .catch(error => {
+        try{
+            const data = await this.bcUser.loginUser(email, password, true);
+            if(data && data.newUser === "false"){
+                document.location.href = '/';
+            } else {
+                document.location.href = $('#next-button').attr('href');
+            }
+        }catch(error){
                 console.log(error);
                 this.bcUser.showError('The email/password you entered was incorrect');
                 $loading.hide();
                 $emailForm.show();
-            });
+            }
     }
 }
 class ConfirmEmailPage extends Page{
     constructor() {
         super();
+        this.initialize();
+    }
+    initialize(){
         $('#email-address').text(this.bcUser.readLS('email'));
-        const codeInputs = $('input[name="email-code[]"]');
         $("#next-button").click(event => {
             event.preventDefault();
-            if (!this.validateEmailCode(codeInputs)) {
-                this.bcUser.showError("Invalid email code");
-            }else{
-                this.checkStatus();
-            }
         });
+        this.checkStatus();
     }
-    validateEmailCode(codeInputs) {
-        let code = "";
-        for (var i = 0; i < 4; i++) {
-            if (codeInputs[i].value.length !== 1) {
-                return false;
-            }
-            code += codeInputs[i].value;
-        }
-        this.bcUser.writeLS("email-code", code);
-        return true;
-    }
-
     checkStatus(){
         const intervalID = setInterval(() => {
             this.bcUser.readUserData().then(userData => {
@@ -210,5 +215,63 @@ class ConfirmEmailPage extends Page{
             });
 
         }, 1000);
+    }
+}
+class PairHeadsetPage extends Page{
+    constructor() {
+        super();
+        this.initialize();
+    }
+    initialize(){
+        const codeInputs = $('input[name="headset-code[]"]');
+        $("#next-button").click(event => {
+            event.preventDefault();
+            if (!this.validateHeadsetCode(codeInputs)) {
+                this.bcUser.showError("Invalid headset code");
+            }
+        });
+        codeInputs.keydown(event => {
+            console.log(event);
+            const targetId = event.target.id;
+            const currentElement = $(event.target);
+            const currentIndex = parseInt(targetId.charAt(-1));
+            if (isNaN(event.key)){
+                switch (event.which){
+                    case 8: //backspace
+                        if(currentElement.val().length > 0){
+                            currentElement.val('');
+                        }else if(currentIndex > 0){
+                            $(`#headset-code-${currentIndex-1}`).focus();
+                        }
+                        break;
+                    case 37: //left arrow
+                        if(currentIndex < 3){
+                            $(`#headset-code-${currentIndex+1}`).focus();
+                        }
+                    break;
+                    case 39: //right arrow
+                        if(currentIndex > 0){
+                            $(`#headset-code-${currentIndex-1}`).focus();
+                        }
+                    break;
+                }
+            }else{
+                if(currentIndex > 0){
+                    $(`#headset-code-${currentIndex-1}`).focus();
+                }
+            }
+        });
+
+    }
+    validateHeadsetCode(codeInputs) {
+        let code = "";
+        for (var i = 0; i < 4; i++) {
+            if (codeInputs[i].value.length !== 1) {
+                return false;
+            }
+            code += codeInputs[i].value;
+        }
+        this.bcUser.writeLS("headset-code", code);
+        return true;
     }
 }
