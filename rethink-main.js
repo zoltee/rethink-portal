@@ -133,9 +133,8 @@ class BCUser{
 	}
 	async emailExists(email){
 		//
-		await $.post(
-			'https://portal.braincloudservers.com/webhook/13623/emailExists/fc93c494-1167-4dd4-89f5-b7c1d4dfe25b',
-			{emailAddress:email},
+		await $.get(
+			`https://portal.braincloudservers.com/webhook/13623/emailExists/fc93c494-1167-4dd4-89f5-b7c1d4dfe25b?emailAddress=${email}`,
 			(data, status) => {
 				return data?.existence;
 			});

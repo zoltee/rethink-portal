@@ -193,6 +193,10 @@ class SelectPasswordPage extends Page{
             if(data && data.newUser === "false"){
                 document.location.href = '/';
             } else {
+                const username = this.bcUser.readLS('username');
+                if (username){
+                    await this.bcUser.updateUsername(username);
+                }
                 document.location.href = $('#next-button').attr('href');
             }
         }catch(error){
