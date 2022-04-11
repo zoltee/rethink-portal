@@ -136,7 +136,7 @@ class PickUsernamePage extends Page{
         usernameInput.val(this.bcUser.readLS('username') ?? '');
         $('#next-button').click(event => {
             event.preventDefault();
-            if (!this.validateUsername(usernameInput)){
+            if (this.validateUsername(usernameInput)){
                 document.location.href = $("#next-button").attr('href');
             }
         });
