@@ -8,7 +8,13 @@ class BCUser{
 		this.brainCloudClient.initialize(BCAppId, BCSecret, BCVersion);
 		this.brainCloudClient.brainCloudClient.enableLogging(true);
 		const jsonUserData = this.readLS("BC-User");
-		this.user = jsonUserData ? JSON.parse(jsonUserData) : null;
+		if (jsonUserData && jsonUserData !== 'undefined') {
+			try {
+				this.user = JSON.parse(jsonUserData);
+			}catch (e) {
+				console.log('can`t parse userData from local storage', jsonUserData);
+			}
+		}
 	}
 	isUserLoggedIn() {
 		console.log('check user logged in');
