@@ -1,5 +1,5 @@
 $(function() {
-    switch (reThinkPage) {
+    switch (reThinkPage ?? 'Home') {
         default:
         case 'Home':
             new HomePage();
