@@ -11,11 +11,15 @@ class BCUser{
 		this.user = jsonUserData ? JSON.parse(jsonUserData) : null;
 	}
 	isUserLoggedIn() {
+		console.log('check user logged in');
 		const userData = this.readLS("BC-User");
 		const profileId = localStorage.getItem('_mainWrapper.profileId');
 		if (userData && profileId) {
-			return this.brainCloudClient.brainCloudClient.isAuthenticated();
+			const loggedIn = this.brainCloudClient.brainCloudClient.isAuthenticated();
+			console.log('login status:',loggedIn);
+			return loggedIn;
 		}
+		console.log('not logged in');
 		return null;
 	}
 	showError(message) {
@@ -25,11 +29,13 @@ class BCUser{
 		$("#success-message").show().text(message);
 	}
 	setUser(data) {
+		console.log('setting user data',data);
 		this.writeLS("BC-User", JSON.stringify(data));
 		this.user = data;
 	}
 
 	async readUser() {
+		console.log('reading user date',data);
 		if (this.user) {
 			return this.user
 		} else {
@@ -43,6 +49,7 @@ class BCUser{
 		localStorage.setItem(BCUser.LSPrefix+field, value);
 	}
 	async reconnectUser() {
+		console.log('reconnecting user');
 		return new Promise((resolve, reject) => {
 			this.brainCloudClient.reconnect(async result => {
 				if(await this.interpretStatus(result)){
@@ -56,6 +63,7 @@ class BCUser{
 	}
 
 	async loginUser(email, password, create = false) {
+		console.log('login user');
 		return new Promise((resolve, reject) => {
 			this.user = null;
 			this.brainCloudClient.authenticateEmailPassword(
@@ -76,6 +84,7 @@ class BCUser{
 		});
 	}
 	async updateAttributes(attributes){
+		console.log('update attributes');
 		return new Promise((resolve, reject) => {
 			this.brainCloudClient.playerState.updateAttributes(attributes, false, async result => {
 				if(await this.interpretStatus(result)){
@@ -88,13 +97,16 @@ class BCUser{
 	}
 
 	async readAttribute(attribute){
+		console.log('read attribute', attribute);
 		if (this.BCUserAttributes && this.BCUserAttributes[attribute]){
+			console.log(`found existing value for attribute ${attribute}:`, this.BCUserAttributes[attribute]);
 			return this.BCUserAttributes[attribute];
 		}
 		return new Promise((resolve, reject) => {
 			this.brainCloudClient.playerState.getAttributes(async result =>{
 				if(await this.interpretStatus(result)){
 					this.BCUserAttributes = result.data.attributes;
+					console.log(`read value for attribute ${attribute}:`, this.BCUserAttributes[attribute]);
 					resolve(this.BCUserAttributes[attribute]);
 				}else{
 					reject(result.status+' : '+ result.status_message);
@@ -108,6 +120,7 @@ class BCUser{
 	}
 
 	async logout() {
+		console.log('logout');
 		localStorage.removeItem(BCUser.LSPrefix+"BC-User");
 		localStorage.removeItem(BCUser.LSPrefix+"email");
 		localStorage.removeItem(BCUser.LSPrefix+"username");
@@ -141,6 +154,7 @@ class BCUser{
 	}
 
 	async readUserData(){
+		console.log('read user data');
 		return new Promise((resolve, reject) => {
 			this.brainCloudClient.playerState.readUserState(async result => {
 				if(await this.interpretStatus(result)){
@@ -153,11 +167,13 @@ class BCUser{
 		});
 	}
 	async emailExists(email){
+		console.log(`check if email exists ${email}`);
 		const response = await $.get(
 			`https://portal.braincloudservers.com/webhook/13623/emailExists/fc93c494-1167-4dd4-89f5-b7c1d4dfe25b?emailAddress=${email}`);
 		return response?.existence ?? false;
 	}
 	async updateEmail(email, password){
+		console.log(`update email to ${email}`);
 		this.brainCloudClient.playerState.identity.changeEmailIdentity(this.user.emailAddress, password, email, true, async result => {
 			return this.interpretStatus(result);
 		});
