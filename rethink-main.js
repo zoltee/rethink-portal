@@ -3,6 +3,7 @@ class BCUser{
 	user;
 	BCUserAttributes;
 	static LSPrefix = 'Rethink.';
+	retriedReconnect = false;
 	constructor(BCAppId, BCSecret, BCVersion) {
 		this.brainCloudClient = new BrainCloudWrapper("_mainWrapper");
 		this.brainCloudClient.initialize(BCAppId, BCSecret, BCVersion);
@@ -36,8 +37,10 @@ class BCUser{
 	}
 	setUser(data) {
 		console.log('setting user data',data);
-		this.writeLS("BC-User", JSON.stringify(data));
-		this.user = data;
+		if (data) {
+			this.writeLS("BC-User", JSON.stringify(data));
+			this.user = data;
+		}
 	}
 
 	async readUser() {
@@ -58,6 +61,7 @@ class BCUser{
 		console.log('reconnecting user');
 		return new Promise((resolve, reject) => {
 			this.brainCloudClient.reconnect(async result => {
+				this.retriedReconnect = true;
 				if(await this.interpretStatus(result)){
 					this.setUser(result.data);
 					resolve(result.data);
@@ -143,6 +147,9 @@ class BCUser{
 		switch (result.status){
 			case 200: return true;
 			case 403:
+				if (this.retriedReconnect){
+					document.location.href = '/authentication';
+				}
 				try{
 					await this.reconnectUser();
 					return true;
