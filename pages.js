@@ -192,6 +192,10 @@ class SelectPasswordPage extends Page{
         try{
             const data = await this.bcUser.loginUser(email, password, true);
             if(data && data.newUser === "false"){
+                if (!this.bcUser.emailVerified){
+                    document.location.href = '/confirm-your-email';
+                }
+
                 document.location.href = '/';
             } else {
                 const username = this.bcUser.readLS('username');

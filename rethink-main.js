@@ -59,14 +59,14 @@ class BCUser{
 				email,
 				password,
 				create,
-				result => {
+				async result => {
 					console.log(result);
-					if (result.status === 200) {
+					if(await this.interpretStatus(result)){
 						this.setUser(result.data);
 						console.log("logged in");
 						resolve(this.user);
 					} else {
-						reject("The email/password you entered was incorrect - " + result.status_message);
+						reject("The email/password you entered was incorrect - " + result.status_message)
 					}
 				}
 			);
@@ -86,10 +86,10 @@ class BCUser{
 	}
 
 	async readAttribute(attribute){
+		if (this.BCUserAttributes && this.BCUserAttributes[attribute]){
+			return this.BCUserAttributes[attribute];
+		}
 		return new Promise((resolve, reject) => {
-			if (this.BCUserAttributes && this.BCUserAttributes[attribute]){
-				return this.BCUserAttributes[attribute];
-			}
 			this.brainCloudClient.playerState.getAttributes(result =>{
 				if (result.status === 200) {
 					this.BCUserAttributes = result.data.attributes;
@@ -117,12 +117,25 @@ class BCUser{
 			});
 		});
 	}
-
+	async interpretStatus(result){
+		switch (result.status){
+			case 200: return true;
+			case 403:
+				try{
+					await this.reconnectUser();
+					return true;
+				}catch (e) {
+					console.log('Error while trying to reconnect after session was lost');
+					throw e;
+				}
+		}
+		return false;
+	}
 
 	async readUserData(){
 		return new Promise((resolve, reject) => {
-			this.brainCloudClient.playerState.readUserState(result => {
-				if (result.status === 200) {
+			this.brainCloudClient.playerState.readUserState(async result => {
+				if(await this.interpretStatus(result)){
 					this.setUser(result.data);
 					resolve(result.data);
 				} else {
