@@ -243,9 +243,9 @@ class PairHeadsetPage extends Page{
     initialize(){
         const codeInputs = $('input[name="headset-code[]"]');
         $("#next-button").click(event => {
-            event.preventDefault();
             if (!this.validateHeadsetCode(codeInputs)) {
                 this.bcUser.showError("Invalid headset code");
+                event.preventDefault();
             }
         });
         codeInputs.keydown(event => {
