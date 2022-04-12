@@ -1,5 +1,8 @@
 $(function() {
-    switch (reThinkPage ?? 'Home') {
+    if (!reThinkPage){
+        reThinkPage = 'Home';
+    }
+    switch (reThinkPage) {
         default:
         case 'Home':
             new HomePage();
@@ -305,7 +308,10 @@ class ProfilePage extends Page{
     }
     initialize(){
         $('.readonly').addClass('readonly');
-        $('#email').val(this.bcUser.user.emailAddress);
+        this.bcUser.readUser().then(data => {
+            $('#email').val(data.emailAddress);
+        });
+
         this.bcUser.readAttribute('username').then(username => {
             $('#username').val(username);
         })
