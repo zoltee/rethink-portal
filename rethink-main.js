@@ -29,9 +29,7 @@ class BCUser{
 
 	async readUser() {
 		if (this.user) {
-			return new Promise((resolve, reject) => {
-				resolve(this.user);
-			});
+			return this.user
 		} else {
 			return this.reconnectUser();
 		}

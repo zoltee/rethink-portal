@@ -304,11 +304,21 @@ class ProfilePage extends Page{
         this.initialize();
     }
     initialize(){
-        $('.readonly').prop('readonly', true);
-        $("#profile-edit").click(event => {
+        $('.readonly').addClass('readonly');
+        $('#email').val(this.bcUser.user.emailAddress);
+        this.bcUser.readAttribute('username').then(username => {
+            $('#username').val(username);
+        })
+        this.bcUser.readAttribute('firstname').then(firstname => {
+            $('#firstname').val(firstname);
+        })
+        this.bcUser.readAttribute('lastname').then(lastname => {
+            $('#lastname').val(lastname);
+        })
+        $(".profile-edit").click(event => {
             const $inputField = $(event.target).parent('.profile-field-wrapper').find('.profile-input');
-            $inputField.prop('readonly', false).focus().blur(e=>{
-                $inputField.prop('readonly', true);
+            $inputField.removeClass('readonly').focus().blur(e=>{
+                $inputField.addClass('readonly');
                 switch ($inputField.name){
                     case 'username':
                         if (!this.validateUsername($inputField)){
@@ -334,7 +344,7 @@ class ProfilePage extends Page{
                             this.bcUser.showError('Invalid email address');
                             return false;
                         }
-                        this.bcUser.updateEmail($inputField.val()).then(()=>{
+                        this.bcUser.user.updateEmail($inputField.val()).then(()=>{
                             this.bcUser.showSuccess('Email address updated');
                         });
                     break;
