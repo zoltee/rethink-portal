@@ -7,9 +7,11 @@ class BCUser{
 		this.brainCloudClient = new BrainCloudWrapper("_mainWrapper");
 		this.brainCloudClient.initialize(BCAppId, BCSecret, BCVersion);
 		this.brainCloudClient.brainCloudClient.enableLogging(true);
+		const jsonUserData = this.readLS("BC-User");
+		this.user = jsonUserData ? JSON.parse(jsonUserData) : null;
 	}
 	isUserLoggedIn() {
-		const userData = localStorage.getItem(BCUser.LSPrefix+"BC-User");
+		const userData = this.readLS("BC-User");
 		const profileId = localStorage.getItem('_mainWrapper.profileId');
 		if (userData && profileId) {
 			return this.brainCloudClient.brainCloudClient.isAuthenticated();
@@ -23,7 +25,7 @@ class BCUser{
 		$("#success-message").show().text(message);
 	}
 	setUser(data) {
-		localStorage.setItem(BCUser.LSPrefix+"BC-User", JSON.stringify(data));
+		this.writeLS("BC-User", JSON.stringify(data));
 		this.user = data;
 	}
 
@@ -42,11 +44,11 @@ class BCUser{
 	}
 	async reconnectUser() {
 		return new Promise((resolve, reject) => {
-			this.brainCloudClient.reconnect(result => {
-				if (result.status === 200) {
+			this.brainCloudClient.reconnect(async result => {
+				if(await this.interpretStatus(result)){
 					this.setUser(result.data);
 					resolve(result.data);
-				} else {
+				}else {
 					reject("Unable to load User data - "+ result.status_message);
 				}
 			});
@@ -61,7 +63,6 @@ class BCUser{
 				password,
 				create,
 				async result => {
-					console.log(result);
 					if(await this.interpretStatus(result)){
 						this.setUser(result.data);
 						console.log("logged in");
@@ -76,8 +77,8 @@ class BCUser{
 	}
 	async updateAttributes(attributes){
 		return new Promise((resolve, reject) => {
-			this.brainCloudClient.playerState.updateAttributes(attributes, false, result => {
-				if (result.status === 200) {
+			this.brainCloudClient.playerState.updateAttributes(attributes, false, async result => {
+				if(await this.interpretStatus(result)){
 					resolve();
 				}else{
 					reject(result.status+' : '+ result.status_message);
@@ -91,8 +92,8 @@ class BCUser{
 			return this.BCUserAttributes[attribute];
 		}
 		return new Promise((resolve, reject) => {
-			this.brainCloudClient.playerState.getAttributes(result =>{
-				if (result.status === 200) {
+			this.brainCloudClient.playerState.getAttributes(async result =>{
+				if(await this.interpretStatus(result)){
 					this.BCUserAttributes = result.data.attributes;
 					resolve(this.BCUserAttributes[attribute]);
 				}else{
@@ -119,6 +120,7 @@ class BCUser{
 		});
 	}
 	async interpretStatus(result, showError = false){
+		console.log(result);
 		switch (result.status){
 			case 200: return true;
 			case 403:
