@@ -263,19 +263,20 @@ class PairHeadsetPage extends Page{
                         }
                         break;
                     case 37: //left arrow
-                        if(currentIndex < 3){
-                            $(`#headset-code-${currentIndex+1}`).focus();
+                        if(currentIndex > 0){
+                            $(`#headset-code-${currentIndex-1}`).focus();
                         }
                     break;
                     case 39: //right arrow
-                        if(currentIndex > 0){
-                            $(`#headset-code-${currentIndex-1}`).focus();
+                        if(currentIndex < 3){
+                            $(`#headset-code-${currentIndex+1}`).focus();
                         }
                     break;
                 }
             }else{
                 if(currentIndex < 3){
                     currentElement.val(event.key);
+                    event.preventDefault();
                     $(`#headset-code-${currentIndex+1}`).focus();
                 }
             }
