@@ -227,7 +227,7 @@ class ConfirmEmailPage extends Page{
     checkStatus(){
         const intervalID = setInterval(() => {
             this.bcUser.readUserData().then(userData => {
-                if (userData.emailVerified){
+                if (userData?.emailVerified){
                     document.location.href = $("#next-button").attr('href');
                 }
             });
@@ -252,7 +252,7 @@ class PairHeadsetPage extends Page{
             console.log(event);
             const targetId = event.target.id;
             const currentElement = $(event.target);
-            const currentIndex = parseInt(targetId.charAt(-1));
+            const currentIndex = parseInt(targetId.substr(-1));
             if (isNaN(event.key)){
                 switch (event.which){
                     case 8: //backspace
@@ -274,8 +274,9 @@ class PairHeadsetPage extends Page{
                     break;
                 }
             }else{
-                if(currentIndex > 0){
-                    $(`#headset-code-${currentIndex-1}`).focus();
+                if(currentIndex < 3){
+                    currentElement.val(event.key);
+                    $(`#headset-code-${currentIndex+1}`).focus();
                 }
             }
         });
