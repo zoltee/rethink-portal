@@ -19,6 +19,9 @@ class BCUser{
 	showError(message) {
 		$("#error-message").show().text(message);
 	}
+	showSuccess(message) {
+		$("#success-message").show().text(message);
+	}
 	setUser(data) {
 		localStorage.setItem(BCUser.LSPrefix+"BC-User", JSON.stringify(data));
 		this.user = data;
@@ -117,7 +120,7 @@ class BCUser{
 			});
 		});
 	}
-	async interpretStatus(result){
+	async interpretStatus(result, showError = false){
 		switch (result.status){
 			case 200: return true;
 			case 403:
@@ -125,9 +128,14 @@ class BCUser{
 					await this.reconnectUser();
 					return true;
 				}catch (e) {
-					console.log('Error while trying to reconnect after session was lost');
-					throw e;
+					if (showError) this.showError('Error while trying to reconnect after session was lost');
+					return false;
 				}
+				break;
+			default:
+				if (showError) this.showError(result.status_message);
+				return false;
+			break;
 		}
 		return false;
 	}
@@ -148,6 +156,11 @@ class BCUser{
 		const response = await $.get(
 			`https://portal.braincloudservers.com/webhook/13623/emailExists/fc93c494-1167-4dd4-89f5-b7c1d4dfe25b?emailAddress=${email}`);
 		return response?.existence ?? false;
+	}
+	async updateEmail(email, password){
+		this.brainCloudClient.playerState.identity.changeEmailIdentity(this.user.emailAddress, password, email, true, async result => {
+			return this.interpretStatus(result);
+		});
 	}
 }
 

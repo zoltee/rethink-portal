@@ -22,12 +22,32 @@ $(function() {
         case 'Pair Headset':
             new PairHeadsetPage();
             break;
+        case 'Profile':
+            new ProfilePage();
+            break;
     }
 });
 class Page{
     bcUser;
     constructor() {
         this.bcUser = new BCUser(BCAppId, BCSecret, BCVersion);
+    }
+    validateEmail(emailInput){
+        const email = emailInput.val();
+        if (/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email)){
+            this.bcUser.writeLS('email', email);
+            return true;
+        }
+        return false;
+    }
+    validateUsername(usernameInput){
+        const username = usernameInput?.val();
+        if (/^\w+$/.test(username)){
+            this.bcUser.writeLS('username', username);
+            return true;
+        }
+        this.bcUser.showError('Invalid username');
+        return false;
     }
 }
 
@@ -49,7 +69,7 @@ class HomePage extends Page{
         }
     }
     initialize(){
-        $('#logout-link').click(event=>{
+        $('#logout-link, #logout-button').click(event=>{
             event.preventDefault();
             this.bcUser.logout().then(()=>{
                 this.redirect();
@@ -77,14 +97,6 @@ class AuthenticatePage extends Page{
             });
         });
 
-    }
-    validateEmail(emailInput){
-        const email = emailInput.val();
-        if (/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email)){
-            this.bcUser.writeLS('email', email);
-            return true;
-        }
-        return false;
     }
 }
 class LoginPage extends Page{
@@ -140,15 +152,6 @@ class PickUsernamePage extends Page{
                 document.location.href = $("#next-button").attr('href');
             }
         });
-    }
-    validateUsername(usernameInput){
-        const username = usernameInput?.val();
-        if (/^\w+$/.test(username)){
-            this.bcUser.writeLS('username', username);
-            return true;
-        }
-        this.bcUser.showError('Invalid username');
-        return false;
     }
 }
 class SelectPasswordPage extends Page{
@@ -294,4 +297,52 @@ class PairHeadsetPage extends Page{
         this.bcUser.writeLS("headset-code", code);
         return true;
     }
+}
+class ProfilePage extends Page{
+    constructor() {
+        super();
+        this.initialize();
+    }
+    initialize(){
+        $('.readonly').prop('readonly', true);
+        $("#profile-edit").click(event => {
+            const $inputField = $(event.target).parent('.profile-field-wrapper').find('.profile-input');
+            $inputField.prop('readonly', false).focus().blur(e=>{
+                $inputField.prop('readonly', true);
+                switch ($inputField.name){
+                    case 'username':
+                        if (!this.validateUsername($inputField)){
+                            this.bcUser.showError('Invalid email address');
+                            return false;
+                        }
+                        this.bcUser.updateUsername($inputField.val()).then(()=>{
+                            this.bcUser.showSuccess('Username updated');
+                        });
+                    break;
+                    case 'firstname':
+                        this.bcUser.updateAttributes({firstname:$inputField.val()}).then(()=>{
+                            this.bcUser.showSuccess('First Name updated');
+                        });
+                    break;
+                    case 'lastname':
+                        this.bcUser.updateAttributes({lastname:$inputField.val()}).then(()=>{
+                            this.bcUser.showSuccess('Last Name updated');
+                        });
+                    break;
+                    case 'email':
+                        if (!this.validateEmail($inputField)){
+                            this.bcUser.showError('Invalid email address');
+                            return false;
+                        }
+                        this.bcUser.updateEmail($inputField.val()).then(()=>{
+                            this.bcUser.showSuccess('Email address updated');
+                        });
+                    break;
+                }
+
+            });
+
+        });
+    }
+
 }
