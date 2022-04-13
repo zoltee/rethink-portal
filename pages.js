@@ -302,7 +302,7 @@ class ProfilePage extends Page{
         const lastname = await this.bcUser.readAttribute('lastname');
         $('#lastname').val(lastname);
         $(".profile-edit").click(event => {
-            const $inputField = $(event.target).parent('.profile-field-wrapper').find('.profile-input');
+            const $inputField = $(event.currentTarget).parent('.profile-field-wrapper').find('.profile-input');
             $inputField.removeClass('readonly').focus().blur(e=>{
                 $inputField.addClass('readonly');
                 switch ($inputField.name){
