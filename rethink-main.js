@@ -44,7 +44,7 @@ class BCUser{
 	}
 
 	async readUser() {
-		console.log('reading user date');
+		console.log('reading user data');
 		if (this.user) {
 			return this.user
 		} else {

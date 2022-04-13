@@ -1,33 +1,37 @@
-$(function() {
+$(async() =>{
     if (!reThinkPage){
         reThinkPage = 'Home';
     }
+    let page;
     switch (reThinkPage) {
         default:
         case 'Home':
-            new HomePage();
+            page = new HomePage();
             break;
         case 'Authenticate':
-            new AuthenticatePage();
+            page = new AuthenticatePage();
             break;
         case 'Login':
-            new LoginPage();
+            page = new LoginPage();
             break;
         case 'Pick Username':
-            new PickUsernamePage();
+            page = new PickUsernamePage();
             break;
         case 'Select Password':
-            new SelectPasswordPage();
+            page = new SelectPasswordPage();
             break;
         case 'Confirm Email':
-            new ConfirmEmailPage();
+            page = new ConfirmEmailPage();
             break;
         case 'Pair Headset':
-            new PairHeadsetPage();
+            page = new PairHeadsetPage();
             break;
         case 'Profile':
-            new ProfilePage();
+            page = new ProfilePage();
             break;
+    }
+    if (page){
+        await page.initialize();
     }
 });
 class Page{
@@ -52,15 +56,10 @@ class Page{
         this.bcUser.showError('Invalid username');
         return false;
     }
-}
-
-class HomePage extends Page{
-    constructor() {
-        super();
-        this.redirect();
-        this.initialize();
+    async initialize(){
+        console.log('generic init', this);
     }
-    redirect(){
+    async redirect(){
         const isLoggedIn = this.bcUser.isUserLoggedIn();
         if (isLoggedIn === null){
             document.location.href = '/authenticate';
@@ -71,7 +70,11 @@ class HomePage extends Page{
             });
         }
     }
-    initialize(){
+}
+
+class HomePage extends Page{
+    async initialize(){
+        await this.redirect();
         $('#logout-link, #logout-button').click(event=>{
             event.preventDefault();
             this.bcUser.logout().then(()=>{
@@ -81,11 +84,7 @@ class HomePage extends Page{
     }
 }
 class AuthenticatePage extends Page{
-    constructor() {
-        super();
-        this.initialize();
-    }
-    initialize(){
+    async initialize(){
         const emailInput = $('#email');
         emailInput.val( this.bcUser.readLS('email') ?? '');
         $('#register-button,#login-button').click(event =>{
@@ -103,11 +102,7 @@ class AuthenticatePage extends Page{
     }
 }
 class LoginPage extends Page{
-    constructor() {
-        super();
-        this.initialize();
-    }
-    initialize(){
+    async initialize(){
         const passwordInput = $('#password');
         $('#signin-button').click(event =>{
             event.preventDefault();
@@ -142,11 +137,7 @@ class LoginPage extends Page{
     }
 }
 class PickUsernamePage extends Page{
-    constructor() {
-        super();
-        this.initialize();
-    }
-    initialize(){
+    async initialize(){
         const usernameInput = $('#username');
         usernameInput.val(this.bcUser.readLS('username') ?? '');
         $('#next-button').click(event => {
@@ -158,11 +149,7 @@ class PickUsernamePage extends Page{
     }
 }
 class SelectPasswordPage extends Page{
-    constructor() {
-        super();
-        this.initialize();
-    }
-    initialize(){
+    async initialize(){
         const passwordInput = $('#password');
         const passwordAgainInput = $('#password-again');
         const email = this.bcUser.readLS('email');
@@ -219,11 +206,7 @@ class SelectPasswordPage extends Page{
     }
 }
 class ConfirmEmailPage extends Page{
-    constructor() {
-        super();
-        this.initialize();
-    }
-    initialize(){
+    async initialize(){
         $('#email-address').text(this.bcUser.readLS('email'));
         $("#next-button").click(event => {
             event.preventDefault();
@@ -242,11 +225,7 @@ class ConfirmEmailPage extends Page{
     }
 }
 class PairHeadsetPage extends Page{
-    constructor() {
-        super();
-        this.initialize();
-    }
-    initialize(){
+    async initialize(){
         const codeInputs = $('input[name="headset-code[]"]');
         $("#next-button").click(event => {
             if (!this.validateHeadsetCode(codeInputs)) {
@@ -302,11 +281,8 @@ class PairHeadsetPage extends Page{
     }
 }
 class ProfilePage extends Page{
-    constructor() {
-        super();
-        this.initialize();
-    }
-    initialize(){
+    async initialize(){
+        await this.redirect();
         $('.readonly').addClass('readonly');
         this.bcUser.readUser().then(data => {
             $('#email').val(data.emailAddress);
