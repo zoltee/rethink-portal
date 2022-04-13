@@ -112,6 +112,7 @@ class BCUser{
 			console.log(`found existing value for attribute ${attribute}:`, this.BCUserAttributes[attribute]);
 			return this.BCUserAttributes[attribute];
 		}
+		return `tempAttribute${attribute}`;
 		return new Promise((resolve, reject) => {
 			this.brainCloudClient.playerState.getAttributes(async result =>{
 				if(await this.interpretStatus(result)){
