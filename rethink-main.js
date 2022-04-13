@@ -188,7 +188,7 @@ class BCUser{
 	}
 	async updateEmail(email, password){
 		console.log(`update email to ${email}`);
-		this.brainCloudClient.playerState.identity.changeEmailIdentity(this.user.emailAddress, password, email, true, async result => {
+		this.brainCloudClient.identity.changeEmailIdentity(this.user.emailAddress, password, email, true, async result => {
 			return this.interpretStatus(result);
 		});
 	}
