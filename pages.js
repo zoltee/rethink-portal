@@ -310,7 +310,7 @@ class ProfilePage extends Page{
             $passwordField.hide();
         };
         const enableEditing = ($element) => {
-            const {$parent,$saveIcon,$editIcon, $inputField} = findFields($element);
+            const {$saveIcon,$editIcon, $inputField, $passwordField} = findFields($element);
             $editIcon.hide();
             $saveIcon.show();
             $passwordField.show();
