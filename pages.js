@@ -315,7 +315,7 @@ class ProfilePage extends Page{
                 .removeClass('readonly')
                 .focus();
             $inputField.on('keydown', e=>{
-                    if (e.which === '27') {// escape
+                    if (e.which === 27) {// escape
                         disableEditing($inputField);
                     }
             });
