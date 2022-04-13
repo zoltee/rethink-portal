@@ -59,26 +59,33 @@ class Page{
     async initialize(){
         console.log('generic init', this);
     }
-    async redirect(){
+    async isLoggedIn(){
+        console.log('checking login status');
         const isLoggedIn = this.bcUser.isUserLoggedIn();
         if (isLoggedIn === null){
-            document.location.href = '/authenticate';
+            console.log('no user info');
+            this.redirectToLogin();
         }
         if (isLoggedIn === false){
+            console.log('not logged in');
             this.bcUser.reconnectUser().catch(()=>{
-                document.location.href = '/authenticate';
+                this.redirectToLogin();
             });
         }
     }
+    redirectToLogin(){
+        document.location.href = '/authenticate';
+    }
+
 }
 
 class HomePage extends Page{
     async initialize(){
-        await this.redirect();
+        await this.isLoggedIn();
         $('#logout-link, #logout-button').click(event=>{
             event.preventDefault();
             this.bcUser.logout().then(()=>{
-                this.redirect();
+                this.isLoggedIn();
             });
         });
     }
@@ -282,7 +289,7 @@ class PairHeadsetPage extends Page{
 }
 class ProfilePage extends Page{
     async initialize(){
-        await this.redirect();
+        await this.isLoggedIn();
         $('.readonly').addClass('readonly');
         this.bcUser.readUser().then(data => {
             $('#email').val(data.emailAddress);
