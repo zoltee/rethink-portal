@@ -302,9 +302,19 @@ class ProfilePage extends Page{
         const lastname = await this.bcUser.readAttribute('lastname');
         $('#lastname').val(lastname);
         $(".profile-edit").click(event => {
-            const $inputField = $(event.currentTarget).parent('.profile-field-wrapper').find('.profile-input');
-            $inputField.removeClass('readonly').focus().blur(e=>{
+            const $editIcon = $(event.currentTarget);
+            const $parent = $editIcon.parent('.profile-field-wrapper');
+            const $inputField = $parent.find('.profile-input');
+            const $saveIcon = $parent.find('.profile-save');
+            $editIcon.hide();
+            $saveIcon.show().click(e=>{
+                const $saveIcon = $(event.currentTarget);
+                const $parent = $saveIcon.parent('.profile-field-wrapper');
+                const $editIcon = $parent.find('.profile-edit');
+
                 $inputField.addClass('readonly');
+                $saveIcon.hide();
+                $editIcon.show();
                 switch ($inputField.attr('name')){
                     case 'username':
                         if (!this.validateUsername($inputField)){
@@ -314,17 +324,17 @@ class ProfilePage extends Page{
                         this.bcUser.updateUsername($inputField.val()).then(()=>{
                             this.bcUser.showSuccess('Username updated');
                         });
-                    break;
+                        break;
                     case 'firstname':
                         this.bcUser.updateAttributes({firstname:$inputField.val()}).then(()=>{
                             this.bcUser.showSuccess('First Name updated');
                         });
-                    break;
+                        break;
                     case 'lastname':
                         this.bcUser.updateAttributes({lastname:$inputField.val()}).then(()=>{
                             this.bcUser.showSuccess('Last Name updated');
                         });
-                    break;
+                        break;
                     case 'email':
                         if (!this.validateEmail($inputField)){
                             this.bcUser.showError('Invalid email address');
@@ -333,10 +343,12 @@ class ProfilePage extends Page{
                         this.bcUser.user.updateEmail($inputField.val()).then(()=>{
                             this.bcUser.showSuccess('Email address updated');
                         });
-                    break;
+                        break;
                 }
-
             });
+
+            $inputField.removeClass('readonly').focus();
+            /**/
 
         });
     }
