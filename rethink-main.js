@@ -44,7 +44,7 @@ class BCUser{
 	}
 
 	async readUser() {
-		console.log('reading user date',data);
+		console.log('reading user date');
 		if (this.user) {
 			return this.user
 		} else {
@@ -148,7 +148,7 @@ class BCUser{
 			case 200: return true;
 			case 403:
 				if (this.retriedReconnect){
-					document.location.href = '/authentication';
+					document.location.href = '/authenticate';
 				}
 				try{
 					await this.reconnectUser();
