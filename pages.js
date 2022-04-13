@@ -303,7 +303,7 @@ class ProfilePage extends Page{
             $inputField.val($inputField.data('prev-val'));
             $editIcon.show();
             $saveIcon.hide();
-            $inputField.off('keypress');
+            $inputField.off('keydown');
             $inputField.addClass('readonly').focus();
         };
         const enableEditing = ($element) => {
@@ -314,7 +314,7 @@ class ProfilePage extends Page{
                 .data('prev-val', $inputField.val())
                 .removeClass('readonly')
                 .focus();
-            $inputField.on('keypress', e=>{
+            $inputField.on('keydown', e=>{
                     if (e.which === '27') {// escape
                         disableEditing($inputField);
                     }
