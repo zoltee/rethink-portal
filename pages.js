@@ -291,30 +291,35 @@ class ProfilePage extends Page{
     async initialize(){
         await this.isLoggedIn();
         $('.readonly').addClass('readonly');
-        this.bcUser.readUser().then(data => {
-            $('#email').val(data.emailAddress);
-        });
-
-        const username = await this.bcUser.readAttribute('username');
-        $('#username').val(username);
-        const firstname = await this.bcUser.readAttribute('firstname');
-        $('#firstname').val(firstname);
-        const lastname = await this.bcUser.readAttribute('lastname');
-        $('#lastname').val(lastname);
-        $(".profile-edit").click(event => {
-            const $editIcon = $(event.currentTarget);
-            const $parent = $editIcon.parent('.profile-field-wrapper');
-            const $inputField = $parent.find('.profile-input');
+        const findFields = ($element) => {
+            const $parent = $element.parent('.profile-field-wrapper');
             const $saveIcon = $parent.find('.profile-save');
+            const $editIcon = $parent.find('.profile-edit');
+            const $inputField = $parent.find('input');
+            return {$parent,$saveIcon,$editIcon, $inputField};
+        }
+        const disableEditing = ($element) => {
+            const {$parent,$saveIcon,$editIcon, $inputField} = findFields($element);
+            $inputField.val($inputField.data('prev-val'));
+            $editIcon.show();
+            $saveIcon.hide();
+            $inputField.off('keypress');
+            $inputField.addClass('readonly').focus();
+        };
+        const enableEditing = ($element) => {
+            const {$parent,$saveIcon,$editIcon, $inputField} = findFields($element);
             $editIcon.hide();
-            $saveIcon.show().click(e=>{
-                const $saveIcon = $(event.currentTarget);
-                const $parent = $saveIcon.parent('.profile-field-wrapper');
-                const $editIcon = $parent.find('.profile-edit');
-
-                $inputField.addClass('readonly');
-                $saveIcon.hide();
-                $editIcon.show();
+            $saveIcon.show();
+            $inputField
+                .data('prev-val', $inputField.val())
+                .removeClass('readonly')
+                .focus()
+                .on('keypress', e=>{
+                    if (e.which === '27') {// escape
+                        disableEditing($inputField);
+                    }
+            });
+            $saveIcon.click(e=>{
                 switch ($inputField.attr('name')){
                     case 'username':
                         if (!this.validateUsername($inputField)){
@@ -323,17 +328,33 @@ class ProfilePage extends Page{
                         }
                         this.bcUser.updateUsername($inputField.val()).then(()=>{
                             this.bcUser.showSuccess('Username updated');
+                            $inputField.data('prev-val', $inputField.val());
+                            disableEditing($inputField);
+                        }).catch((error) =>{
+                            console.log(error);
+                            this.bcUser.showError('Error saving lastname');
                         });
                         break;
                     case 'firstname':
                         this.bcUser.updateAttributes({firstname:$inputField.val()}).then(()=>{
                             this.bcUser.showSuccess('First Name updated');
+                            $inputField.data('prev-val', $inputField.val());
+                            disableEditing($inputField);
+                        }).catch((error) =>{
+                            console.log(error);
+                            this.bcUser.showError('Error saving firstname');
                         });
                         break;
                     case 'lastname':
                         this.bcUser.updateAttributes({lastname:$inputField.val()}).then(()=>{
                             this.bcUser.showSuccess('Last Name updated');
+                            $inputField.data('prev-val', $inputField.val());
+                            disableEditing($inputField);
+                        }).catch((error) =>{
+                            console.log(error);
+                            this.bcUser.showError('Error saving lastname');
                         });
+
                         break;
                     case 'email':
                         if (!this.validateEmail($inputField)){
@@ -342,14 +363,31 @@ class ProfilePage extends Page{
                         }
                         this.bcUser.user.updateEmail($inputField.val()).then(()=>{
                             this.bcUser.showSuccess('Email address updated');
+                            $inputField.data('prev-val', $inputField.val());
+                            disableEditing($inputField);
+                        }).catch((error) =>{
+                            console.log(error);
+                            this.bcUser.showError('Error saving email address');
                         });
                         break;
                 }
             });
+            return $saveIcon;
+        }
 
-            $inputField.removeClass('readonly').focus();
-            /**/
+        this.bcUser.readUser().then(data => {
+            $('#email').val(data.emailAddress);
+        });
 
+
+        const username = await this.bcUser.readAttribute('username');
+        $('#username').val(username);
+        const firstname = await this.bcUser.readAttribute('firstname');
+        $('#firstname').val(firstname);
+        const lastname = await this.bcUser.readAttribute('lastname');
+        $('#lastname').val(lastname);
+        $(".profile-edit").click(event => {
+            enableEditing($(event.currentTarget));
         });
     }
 
