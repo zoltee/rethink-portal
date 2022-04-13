@@ -296,7 +296,7 @@ class ProfilePage extends Page{
             const $parent = $element.parent('.profile-field-wrapper');
             const $saveIcon = $parent.find('.profile-save');
             const $editIcon = $parent.find('.profile-edit');
-            const $inputField = $parent.find('input[type="text"]');
+            const $inputField = $parent.find('input[type!=password]');
             const $passwordField = $parent.find('input[type="password"]');
             return {$parent,$saveIcon,$editIcon, $inputField,$passwordField};
         }
