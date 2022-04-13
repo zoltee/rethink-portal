@@ -313,8 +313,8 @@ class ProfilePage extends Page{
             $inputField
                 .data('prev-val', $inputField.val())
                 .removeClass('readonly')
-                .focus()
-                .on('keypress', e=>{
+                .focus();
+            $inputField.on('keypress', e=>{
                     if (e.which === '27') {// escape
                         disableEditing($inputField);
                     }
@@ -372,7 +372,6 @@ class ProfilePage extends Page{
                         break;
                 }
             });
-            return $saveIcon;
         }
 
         this.bcUser.readUser().then(data => {
