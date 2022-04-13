@@ -295,15 +295,12 @@ class ProfilePage extends Page{
             $('#email').val(data.emailAddress);
         });
 
-        this.bcUser.readAttribute('username').then(username => {
-            $('#username').val(username);
-        })
-        this.bcUser.readAttribute('firstname').then(firstname => {
-            $('#firstname').val(firstname);
-        })
-        this.bcUser.readAttribute('lastname').then(lastname => {
-            $('#lastname').val(lastname);
-        })
+        const username = await this.bcUser.readAttribute('username');
+        $('#username').val(username);
+        const firstname = await this.bcUser.readAttribute('firstname');
+        $('#firstname').val(firstname);
+        const lastname = await this.bcUser.readAttribute('lastname');
+        $('#lastname').val(lastname);
         $(".profile-edit").click(event => {
             const $inputField = $(event.target).parent('.profile-field-wrapper').find('.profile-input');
             $inputField.removeClass('readonly').focus().blur(e=>{
