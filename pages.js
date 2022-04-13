@@ -305,7 +305,7 @@ class ProfilePage extends Page{
             const $inputField = $(event.currentTarget).parent('.profile-field-wrapper').find('.profile-input');
             $inputField.removeClass('readonly').focus().blur(e=>{
                 $inputField.addClass('readonly');
-                switch ($inputField.name){
+                switch ($inputField.attr('name')){
                     case 'username':
                         if (!this.validateUsername($inputField)){
                             this.bcUser.showError('Invalid email address');
