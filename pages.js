@@ -296,21 +296,24 @@ class ProfilePage extends Page{
             const $parent = $element.parent('.profile-field-wrapper');
             const $saveIcon = $parent.find('.profile-save');
             const $editIcon = $parent.find('.profile-edit');
-            const $inputField = $parent.find('input');
-            return {$parent,$saveIcon,$editIcon, $inputField};
+            const $inputField = $parent.find('input[type="text"]');
+            const $passwordField = $parent.find('input[type="password"]');
+            return {$parent,$saveIcon,$editIcon, $inputField,$passwordField};
         }
         const disableEditing = ($element) => {
-            const {$parent,$saveIcon,$editIcon, $inputField} = findFields($element);
+            const {$saveIcon,$editIcon, $inputField,$passwordField} = findFields($element);
             $inputField.val($inputField.data('prev-val'));
             $editIcon.show();
             $saveIcon.hide();
             $inputField.off('keydown');
             $inputField.addClass('readonly').focus();
+            $passwordField.hide();
         };
         const enableEditing = ($element) => {
             const {$parent,$saveIcon,$editIcon, $inputField} = findFields($element);
             $editIcon.hide();
             $saveIcon.show();
+            $passwordField.show();
             $inputField
                 .data('prev-val', $inputField.val())
                 .removeClass('readonly')
@@ -362,7 +365,7 @@ class ProfilePage extends Page{
                             this.bcUser.showError('Invalid email address');
                             return false;
                         }
-                        this.bcUser.updateEmail($inputField.val()).then(()=>{
+                        this.bcUser.updateEmail($inputField.val(), $passwordField.val()).then(()=>{
                             this.bcUser.showSuccess('Email address updated');
                             $inputField.data('prev-val', $inputField.val());
                             disableEditing($inputField);
