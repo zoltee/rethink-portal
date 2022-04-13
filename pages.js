@@ -293,6 +293,12 @@ class PairHeadsetPage extends Page{
 class ProfilePage extends Page{
     async initialize(){
         await this.isLoggedIn();
+        $('#logout-link, #logout-button').click(event=>{
+            event.preventDefault();
+            this.bcUser.logout().then(()=>{
+                this.isLoggedIn();
+            });
+        });
         $('.readonly').addClass('readonly');
         const findFields = ($element) => {
             const $parent = $element.parent('.profile-field-wrapper');
