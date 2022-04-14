@@ -425,7 +425,7 @@ class AvatarPage extends Page{
         await this.checkLoggedIn();
         const $swiperWrapper = $('.swiper-wrapper');
         const demoSlides = $swiperWrapper.find('.swiper-slide');
-        const $template = $(demoSlides[0]);
+        const template = demoSlides[0].outerHTML;
         demoSlides.remove();
         const avatars = [
             'https://media.sketchfab.com/models/7a8fa15955084fa3bf7103ed1818c584/thumbnails/c092fb3800de440995982870feda61d9/08e1cec1ba8f49ffa44e176ec4fcb368.jpeg',
@@ -448,8 +448,9 @@ class AvatarPage extends Page{
                 prevEl: '.swiper-button-prev',
             },
         });
+        const urlMatch = new RegExp('src=".*?"','gm');
         for (const avaratURL of avatars) {
-            swiper.appendSlide($template.find('.sample-avatar').attr('src',avaratURL).outerHTML());
+            swiper.appendSlide(template.replace(urlMatch, `src="${avaratURL}"`));
         }
     }
 }
