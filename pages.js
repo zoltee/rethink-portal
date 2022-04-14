@@ -391,7 +391,7 @@ class ProfilePage extends Page{
                             disableEditing($inputField);
                         }).catch((error) =>{
                             console.log(error);
-                            this.bcUser.showError('Error saving email address');
+                            this.bcUser.showError('Error saving email address. Possibly wrong password');
                         });
                         break;
                 }

@@ -148,15 +148,17 @@ class BCUser{
 		switch (result.status){
 			case 200: return true;
 			case 403:
-				if (this.retriedReconnect){
-					document.location.href = '/authenticate';
-				}
-				try{
-					await this.reconnectUser();
-					return true;
-				}catch (e) {
-					if (showError) this.showError('Error while trying to reconnect after session was lost');
-					return false;
+				if (result.reason_code == 40426) {
+					if (this.retriedReconnect) {
+						document.location.href = '/authenticate';
+					}
+					try {
+						await this.reconnectUser();
+						return true;
+					} catch (e) {
+						if (showError) this.showError('Error while trying to reconnect after session was lost');
+						return false;
+					}
 				}
 				break;
 			default:
