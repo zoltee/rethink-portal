@@ -302,7 +302,6 @@ class ProfilePage extends Page{
                 this.checkLoggedIn();
             });
         });
-        $('.readonly').addClass('readonly');
         const findFields = ($element) => {
             const $parent = $element.parent('.profile-field-wrapper');
             const $saveIcon = $parent.find('.profile-save');
@@ -311,13 +310,16 @@ class ProfilePage extends Page{
             const $passwordField = $parent.find('input[type="password"]');
             return {$parent,$saveIcon,$editIcon, $inputField,$passwordField};
         }
+        $('.readonly').prop('readonly',true);
         const disableEditing = ($element) => {
             const {$saveIcon,$editIcon, $inputField,$passwordField} = findFields($element);
             $inputField.val($inputField.data('prev-val'));
             $editIcon.show();
             $saveIcon.hide();
             $inputField.off('keydown');
-            $inputField.addClass('readonly').focus();
+            $inputField
+                .addClass('readonly')
+                .prop('readonly', true);
             $passwordField.hide();
         };
         const enableEditing = ($element) => {
@@ -328,6 +330,7 @@ class ProfilePage extends Page{
             $inputField
                 .data('prev-val', $inputField.val())
                 .removeClass('readonly')
+                .prop('readonly', false)
                 .focus();
             $inputField.on('keydown', e=>{
                     if (e.which === 27) {// escape
