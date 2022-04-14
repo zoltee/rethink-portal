@@ -420,7 +420,7 @@ class ProfilePage extends Page{
     }
 
 }
-class Avatar extends Page{
+class AvatarPage extends Page{
     async initialize(){
         await this.checkLoggedIn();
         const $swiperWrapper = $('.swiper-wrapper');
