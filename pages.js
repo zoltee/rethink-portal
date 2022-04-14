@@ -423,6 +423,10 @@ class ProfilePage extends Page{
 class AvatarPage extends Page{
     async initialize(){
         await this.checkLoggedIn();
+        this.loadAvatars();
+        this.initCustomizer();
+    }
+    loadAvatars(){
         const $swiperWrapper = $('.swiper-wrapper');
         const demoSlides = $swiperWrapper.find('.swiper-slide');
         const template = demoSlides[0].outerHTML;
@@ -452,5 +456,52 @@ class AvatarPage extends Page{
         for (const avaratURL of avatars) {
             swiper.appendSlide(template.replace(urlMatch, `src="${avaratURL}"`));
         }
+
     }
+    initCustomizer(){
+        $('#avatar-edit').click(event => {
+            const customizer = $('<div id="avatar-customizer"><iframe width="100%" height="100%" id="customizer-frame" src="https://zoltee.readyplayer.me/avatar?frameApi" class="frame" allow="camera *; microphone *"></iframe></div>').appendTo('body');
+            window.on('message', this.subscribe);
+            document.on('message', this.subscribe);
+        });
+    }
+    subscribe(event) {
+            const json = this.parse(event);
+
+            if (json?.source !== 'readyplayerme') {
+                return;
+            }
+
+            // Subscribe to all events sent from Ready Player Me once frame is ready
+            if (json.eventName === 'v1.frame.ready') {
+                frame.contentWindow.postMessage(
+                    JSON.stringify({
+                        target: 'readyplayerme',
+                        type: 'subscribe',
+                        eventName: 'v1.**'
+                    }),
+                    '*'
+                );
+            }
+
+            // Get avatar GLB URL
+            if (json.eventName === 'v1.avatar.exported') {
+                console.log(`Avatar URL: ${json.data.url}`);
+                // document.getElementById('avatarUrl').innerHTML = `Avatar URL: ${json.data.url}`;
+                // document.getElementById('frame').hidden = true;
+            }
+
+            // Get user id
+            if (json.eventName === 'v1.user.set') {
+                console.log(`User with id ${json.data.id} set: ${JSON.stringify(json)}`);
+            }
+        }
+    parse(event) {
+            try {
+                return JSON.parse(event.data);
+            } catch (error) {
+                return null;
+            }
+        }
+
 }
