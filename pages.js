@@ -380,7 +380,7 @@ class ProfilePage extends Page{
                             this.bcUser.showError('Invalid password');
                             return false;
                         }
-                        const email = emailInput.val();
+                        const email = $inputField.val();
                         this.bcUser.updateEmail(email, $passwordField.val()).then(()=>{
                             this.bcUser.showSuccess('Email address updated');
                             $inputField.data('prev-val', email);
