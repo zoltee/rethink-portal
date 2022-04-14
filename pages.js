@@ -461,8 +461,8 @@ class AvatarPage extends Page{
     initCustomizer(){
         $('#avatar-edit').click(event => {
             const customizer = $('<div id="avatar-customizer"><iframe width="100%" height="100%" id="customizer-frame" src="https://demo.readyplayer.me/avatar?frameApi" class="frame" allow="camera *; microphone *"></iframe></div>').appendTo('body');
-            window.on('message', this.subscribe);
-            document.on('message', this.subscribe);
+            window.addEventListener('message', this.subscribe);
+            document.addEventListener('message', this.subscribe);
             customizer.show();
         });
     }
