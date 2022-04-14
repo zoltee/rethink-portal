@@ -29,6 +29,9 @@ $(async() =>{
         case 'Profile':
             page = new ProfilePage();
             break;
+        case 'Avatar':
+            page = new AvatarPage();
+            break;
     }
     if (page){
         await page.initialize();
@@ -303,7 +306,7 @@ class ProfilePage extends Page{
             });
         });
         const findFields = ($element) => {
-            const $parent = $element.parent('.profile-field-wrapper');
+            const $parent = $element.parents('.profile-field-wrapper');
             const $saveIcon = $parent.find('.profile-save');
             const $editIcon = $parent.find('.profile-edit');
             const $inputField = $parent.find('input[type!=password]');
@@ -389,6 +392,8 @@ class ProfilePage extends Page{
                             $inputField.data('prev-val', email);
                             this.bcUser.writeLS('email', email);
                             disableEditing($inputField);
+                            // re-read all the data
+                            this.bcUser.reconnectUser();
                         }).catch((error) =>{
                             console.log(error);
                             this.bcUser.showError('Error saving email address. Possibly wrong password');
@@ -414,4 +419,37 @@ class ProfilePage extends Page{
         });
     }
 
+}
+class Avatar extends Page{
+    async initialize(){
+        await this.checkLoggedIn();
+        const $swiperWrapper = $('.swiper-wrapper');
+        const demoSlides = $swiperWrapper.find('.swiper-slide');
+        const $template = $(demoSlides[0]);
+        demoSlides.remove();
+        const avatars = [
+            'https://media.sketchfab.com/models/7a8fa15955084fa3bf7103ed1818c584/thumbnails/c092fb3800de440995982870feda61d9/08e1cec1ba8f49ffa44e176ec4fcb368.jpeg',
+            'https://cdna.artstation.com/p/assets/images/images/039/558/340/large/wolf3d-andra.jpg?1626256412',
+            'https://media.sketchfab.com/models/a9c1f5d2cd7c4ca3bb46272998d3e451/thumbnails/77ef8c5191cb48eb8e1def561dbe72b1/930dc29f6203489fbe51524b24c7cba0.jpeg',
+            'https://www.coinkolik.com/wp-content/uploads/2021/12/sanal-platformlar-icin-avatar-projesi-ready-player-me-13-milyon-dolar-yatirim-aldi.jpeg',
+            'https://roadtovrlive-5ea0.kxcdn.com/wp-content/uploads/2021/01/readyplayerme-avatar-liv-vr-streaming-238x178.jpg',
+            'https://media.sketchfab.com/models/f2791ae3c40c4920a158f96c7dc46f53/thumbnails/1ff36819e8b64a8f831f2c8dbfe6094c/53721a817c5e435b880e0298dc6ea8ce.jpeg'
+        ];
+        const swiper = new Swiper('.swiper', {
+            loop: true,
+            slidesPerView: 3,
+            spaceBetween: 0,
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+        });
+        for (const avaratURL of avatars) {
+            swiper.appendSlide($template.find('.sample-avatar').attr('src',avaratURL).outerHTML());
+        }
+    }
 }
