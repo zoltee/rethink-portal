@@ -68,7 +68,7 @@ class Page{
     async initialize(){
         console.log('generic init', this);
     }
-    async isLoggedIn(){
+    async checkLoggedIn(){
         console.log('checking login status');
         const isLoggedIn = this.bcUser.isUserLoggedIn();
         if (isLoggedIn === null){
@@ -77,9 +77,12 @@ class Page{
         }
         if (isLoggedIn === false){
             console.log('not logged in');
-            this.bcUser.reconnectUser().catch(()=>{
+            try {
+                await this.bcUser.reconnectUser();
+            }catch(e){
+                console.log(e);
                 this.redirectToLogin();
-            });
+            }
         }
     }
     redirectToLogin(){
@@ -90,11 +93,11 @@ class Page{
 
 class HomePage extends Page{
     async initialize(){
-        await this.isLoggedIn();
+        await this.checkLoggedIn();
         $('#logout-link, #logout-button').click(event=>{
             event.preventDefault();
             this.bcUser.logout().then(()=>{
-                this.isLoggedIn();
+                this.checkLoggedIn();
             });
         });
     }
@@ -292,11 +295,11 @@ class PairHeadsetPage extends Page{
 }
 class ProfilePage extends Page{
     async initialize(){
-        await this.isLoggedIn();
+        await this.checkLoggedIn();
         $('#logout-link, #logout-button').click(event=>{
             event.preventDefault();
             this.bcUser.logout().then(()=>{
-                this.isLoggedIn();
+                this.checkLoggedIn();
             });
         });
         $('.readonly').addClass('readonly');
