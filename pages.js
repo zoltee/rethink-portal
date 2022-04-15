@@ -477,7 +477,7 @@ class AvatarPage extends Page{
         });
 
     }
-    async receiveMessage(event) {
+    receiveMessage(event) {
         console.log('received event', event);
         function parse(event) {
             try {
@@ -493,7 +493,7 @@ class AvatarPage extends Page{
                 return;
             }
         }else if(event.data.substring(0,4) === 'http'){
-            await this.render(event.data);
+            this.render(event.data);
             return;
         }
 
@@ -513,7 +513,7 @@ class AvatarPage extends Page{
         // Get avatar GLB URL
         if (eventData.eventName === 'v1.avatar.exported') {
             console.log(`Avatar URL: ${eventData.data}`);
-            await this.render(eventData.data);
+            this.render(eventData.data);
             return;
             // document.getElementById('avatarUrl').innerHTML = `Avatar URL: ${json.data.url}`;
             // document.getElementById('frame').hidden = true;
@@ -524,8 +524,12 @@ class AvatarPage extends Page{
             console.log(`User with id ${eventData.data.id} set: ${JSON.stringify(eventData)}`);
         }
     }
-
-    async render(glbURL){
+    setCustomAvatar(customURL){
+      $('.custom-avatar').attr('src', customURL);
+      $('#avatar-customizer').remove();
+      this.bcUser.setAvatar(customURL);
+    }
+    render(glbURL){
         const params =
             {
                 model: glbURL,
@@ -539,7 +543,8 @@ class AvatarPage extends Page{
                 data: JSON.stringify(params),
                 dataType: 'json'
             }).done(data=>{
-                    console.log(data);
+                console.log(data);
+                this.setCustomAvatar(data.renders[0]);
             });
     }
 }
