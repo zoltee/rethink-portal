@@ -461,12 +461,15 @@ class AvatarPage extends Page{
     initCustomizer(){
         $('#avatar-edit').click(event => {
             const customizer = $('<div id="avatar-customizer"><iframe width="100%" height="100%" id="customizer-frame" src="https://demo.readyplayer.me/avatar?frameApi" class="frame" allow="camera *; microphone *"></iframe></div>').appendTo('body');
-            window.addEventListener('message', this.subscribe);
-            document.addEventListener('message', this.subscribe);
+            $(window).on('message', e => {
+                this.receiveMessage(e);
+            })
+            // window.addEventListener('message', this.subscribe);
+            // document.addEventListener('message', this.subscribe);
             customizer.show();
         });
     }
-    subscribe(event) {
+    receiveMessage(event) {
         console.log('received event', event);
         function parse(event) {
             try {
@@ -475,14 +478,19 @@ class AvatarPage extends Page{
                 return null;
             }
         }
-        const json = parse(event);
-
-        if (json?.source !== 'readyplayerme') {
-            return;
+        let eventData;
+        if (event.data[0] == '{'){
+            eventData = parse(event.data);
+            if (eventData?.source !== 'readyplayerme') {
+                return;
+            }
+        }else if(event.data.substring(0,4) === 'http'){
+            this.render(event.data)
         }
 
         // Subscribe to all events sent from Ready Player Me once frame is ready
-        if (json.eventName === 'v1.frame.ready') {
+        if (eventData.eventName === 'v1.frame.ready') {
+            const frame = document.getElementById('customizer-frame');
             frame.contentWindow.postMessage(
                 JSON.stringify({
                     target: 'readyplayerme',
@@ -494,17 +502,28 @@ class AvatarPage extends Page{
         }
 
         // Get avatar GLB URL
-        if (json.eventName === 'v1.avatar.exported') {
-            console.log(`Avatar URL: ${json.data.url}`);
+        if (eventData.eventName === 'v1.avatar.exported') {
+            console.log(`Avatar URL: ${eventData.data}`);
+            this.render(eventData.data);
             // document.getElementById('avatarUrl').innerHTML = `Avatar URL: ${json.data.url}`;
             // document.getElementById('frame').hidden = true;
         }
 
         // Get user id
-        if (json.eventName === 'v1.user.set') {
-            console.log(`User with id ${json.data.id} set: ${JSON.stringify(json)}`);
+        if (eventData.eventName === 'v1.user.set') {
+            console.log(`User with id ${eventData.data.id} set: ${JSON.stringify(eventData)}`);
         }
     }
 
-
+    render(glbURL){
+        const params =
+            {
+                model: glbURL,
+                scene: "halfbody-portrait-v1-transparent", //halfbody-portrait-v1, fullbody-portrait-v1 ,halfbody-portrait-v1-transparent , fullbody-portrait-v1-transparent , fullbody-posture-v1-transparent
+               // armature: "ArmatureTargetMale", // ArmatureTargetFemale
+            }
+        $.post('https://render.readyplayer.me/render',params,data => {
+            console.log(data);
+        },'json');
+    }
 }
