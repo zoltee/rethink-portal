@@ -532,9 +532,9 @@ class AvatarPage extends Page{
                 scene: "halfbody-portrait-v1-transparent", //halfbody-portrait-v1, fullbody-portrait-v1 ,halfbody-portrait-v1-transparent , fullbody-portrait-v1-transparent , fullbody-posture-v1-transparent
                // armature: "ArmatureTargetMale", // ArmatureTargetFemale
             }
-        return $.ajax(
-            'https://render.readyplayer.me/render',
-            {
+        return $.ajax({
+                url:'https://render.readyplayer.me/render',
+                method: "POST",
                 contentType:'application/json',
                 data: JSON.stringify(params),
                 dataType: 'json'
