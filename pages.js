@@ -466,8 +466,13 @@ class AvatarPage extends Page{
             })
             // window.addEventListener('message', this.subscribe);
             // document.addEventListener('message', this.subscribe);
-            customizer.show();
+            customizer.show().keydown(e=>{
+                if (e.which === 27) {// escape
+                    customizer.remove();
+                }
+            });
         });
+        $('#avatar-customizer')
     }
     receiveMessage(event) {
         console.log('received event', event);
