@@ -474,7 +474,7 @@ class AvatarPage extends Page{
         });
         $('#avatar-customizer')
     }
-    receiveMessage(event) {
+    async receiveMessage(event) {
         console.log('received event', event);
         function parse(event) {
             try {
@@ -490,7 +490,8 @@ class AvatarPage extends Page{
                 return;
             }
         }else if(event.data.substring(0,4) === 'http'){
-            this.render(event.data)
+            await this.render(event.data);
+            return;
         }
 
         // Subscribe to all events sent from Ready Player Me once frame is ready
@@ -509,7 +510,8 @@ class AvatarPage extends Page{
         // Get avatar GLB URL
         if (eventData.eventName === 'v1.avatar.exported') {
             console.log(`Avatar URL: ${eventData.data}`);
-            this.render(eventData.data);
+            await this.render(eventData.data);
+            return;
             // document.getElementById('avatarUrl').innerHTML = `Avatar URL: ${json.data.url}`;
             // document.getElementById('frame').hidden = true;
         }
@@ -520,15 +522,21 @@ class AvatarPage extends Page{
         }
     }
 
-    render(glbURL){
+    async render(glbURL){
         const params =
             {
                 model: glbURL,
                 scene: "halfbody-portrait-v1-transparent", //halfbody-portrait-v1, fullbody-portrait-v1 ,halfbody-portrait-v1-transparent , fullbody-portrait-v1-transparent , fullbody-posture-v1-transparent
                // armature: "ArmatureTargetMale", // ArmatureTargetFemale
             }
-        $.post('https://render.readyplayer.me/render',params,data => {
-            console.log(data);
-        },'json');
+        return $.ajax(
+            'https://render.readyplayer.me/render',
+            {
+                contentType:'application/json',
+                data: JSON.stringify(params),
+                dataType: 'json'
+            }).done(data=>{
+                    console.log(data);
+            });
     }
 }
