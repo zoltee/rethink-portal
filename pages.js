@@ -475,6 +475,9 @@ class AvatarPage extends Page{
                 customizer.remove();
             });
         });
+        if (this.bcUser.user.pictureUrl){
+            $('.custom-avatar').attr('src', this.bcUser.user.pictureUrl);
+        }
 
     }
     receiveMessage(event) {
