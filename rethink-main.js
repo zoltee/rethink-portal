@@ -196,12 +196,14 @@ class BCUser{
 		});
 	}
 	async setAvatar(avatarURL){
-		this.brainCloudClient.playerState.updateUserPictureUrl(avatarURL, async result => {
-			if(await this.interpretStatus(result)){
-				resolve(result.data.playerPictureUrl);
-			}else{
-				reject(result.status+' : '+ result.status_message);
-			}
+		return new Promise((resolve, reject) => {
+			this.brainCloudClient.playerState.updateUserPictureUrl(avatarURL, async result => {
+				if(await this.interpretStatus(result)){
+					resolve(result.data.playerPictureUrl);
+				}else{
+					reject(result.status+' : '+ result.status_message);
+				}
+			});
 		});
 	}
 }
