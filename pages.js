@@ -527,7 +527,9 @@ class AvatarPage extends Page{
     setCustomAvatar(customURL){
       $('.custom-avatar').attr('src', customURL);
       $('#avatar-customizer').remove();
-      this.bcUser.setAvatar(customURL);
+      this.bcUser.setAvatar(customURL).then(url => {
+
+      });
     }
     render(glbURL){
         const params =
