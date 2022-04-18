@@ -98,7 +98,7 @@ class BCUser{
 		return new Promise((resolve, reject) => {
 			this.brainCloudClient.playerState.updateAttributes(attributes, false, async result => {
 				if(await this.interpretStatus(result)){
-					this.BCUserAttributes = [...this.BCUserAttributes, ...attributes];
+					this.BCUserAttributes = [...this.BCUserAttributes ?? {}, ...attributes];
 					resolve();
 				}else{
 					reject(result.status+' : '+ result.status_message);
@@ -113,13 +113,17 @@ class BCUser{
 			console.log(`found existing value for attribute ${attribute}:`, this.BCUserAttributes[attribute]);
 			return this.BCUserAttributes[attribute];
 		}
-		//return `tempAttribute${attribute}`;
+		const attributes = await this.loadAttributes();
+		return attributes[attribute];
+	}
+
+	async loadAttributes(){
+		console.log('loading attributes');
 		return new Promise((resolve, reject) => {
 			this.brainCloudClient.playerState.getAttributes(async result =>{
 				if(await this.interpretStatus(result)){
 					this.BCUserAttributes = result.data.attributes;
-					console.log(`read value for attribute ${attribute}:`, this.BCUserAttributes[attribute]);
-					resolve(this.BCUserAttributes[attribute]);
+					resolve(this.BCUserAttributes);
 				}else{
 					reject(result.status+' : '+ result.status_message);
 				}
@@ -127,9 +131,10 @@ class BCUser{
 		});
 	}
 
-	async updateUsername(username){
+
+	/*async updateUsername(username){
 		return await this.updateAttributes({username});
-	}
+	}*/
 
 	async logout() {
 		console.log('logout');
@@ -191,6 +196,12 @@ class BCUser{
 	}
 	async updateEmail(email, password){
 		console.log(`update email to ${email}`);
+		this.brainCloudClient.identity.changeEmailIdentity(this.user.emailAddress, password, email, true, async result => {
+			return this.interpretStatus(result);
+		});
+	}
+	async updateUsername(username){
+		console.log(`update username to ${username}`);
 		this.brainCloudClient.identity.changeEmailIdentity(this.user.emailAddress, password, email, true, async result => {
 			return this.interpretStatus(result);
 		});

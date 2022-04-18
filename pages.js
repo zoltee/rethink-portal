@@ -460,7 +460,7 @@ class AvatarPage extends Page{
     }
     initCustomizer(){
         $('#avatar-edit').click(event => {
-            const customizer = $('<div id="avatar-customizer"><iframe width="100%" height="100%" id="customizer-frame" src="https://demo.readyplayer.me/avatar?frameApi" class="frame" allow="camera *; microphone *"></iframe><b id="customizer-close" style="position: absolute;top: 0;right: 20px;color: #fff;z-index: 1000;padding: 10px;cursor: pointer;">X</b></div>').appendTo('body');
+            const customizer = $('<div id="avatar-customizer"><iframe width="100%" height="100%" id="customizer-frame" src="https://contxtual.readyplayer.me/avatar?frameApi" class="frame" allow="camera *; microphone *"></iframe><b id="customizer-close" style="position: absolute;top: 0;right: 20px;color: #fff;z-index: 1000;padding: 10px;cursor: pointer;">X</b></div>').appendTo('body');
             $(window).on('message', e => {
                 this.receiveMessage(e.originalEvent);
             })
@@ -480,7 +480,7 @@ class AvatarPage extends Page{
         }
 
     }
-    receiveMessage(event) {
+    async receiveMessage(event) {
         console.log('received event', event);
         function parse(event) {
             try {
@@ -515,11 +515,12 @@ class AvatarPage extends Page{
 
         // Get avatar GLB URL
         if (eventData.eventName === 'v1.avatar.exported') {
+            const glbURL = eventData.data;
             console.log(`Avatar URL: ${eventData.data}`);
-            this.render(eventData.data);
+            this.bcUser.updateAttributes({avatarGLB: glbURL}).then(r => console.log('GLB saved'));
+            const avatarURL = await this.render(glbURL);
+            this.setAvatarURL(avatarURL);
             return;
-            // document.getElementById('avatarUrl').innerHTML = `Avatar URL: ${json.data.url}`;
-            // document.getElementById('frame').hidden = true;
         }
 
         // Get user id
@@ -527,14 +528,14 @@ class AvatarPage extends Page{
             console.log(`User with id ${eventData.data.id} set: ${JSON.stringify(eventData)}`);
         }
     }
-    setCustomAvatar(customURL){
+    setAvatarURL(customURL){
       $('.custom-avatar').attr('src', customURL);
       $('#avatar-customizer').remove();
       this.bcUser.setAvatar(customURL).then(url => {
-
+        this.bcUser.showSuccess('Avatar updated');
       });
     }
-    render(glbURL){
+    async render(glbURL){
         const params =
             {
                 model: glbURL,
@@ -549,7 +550,7 @@ class AvatarPage extends Page{
                 dataType: 'json'
             }).done(data=>{
                 console.log(data);
-                this.setCustomAvatar(data.renders[0]);
+                return data.renders[0];
             });
     }
 }
