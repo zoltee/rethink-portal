@@ -202,7 +202,7 @@ class BCUser{
 	}
 	async updateUsername(username){
 		console.log(`update username to ${username}`);
-		this.brainCloudClient.identity.changeEmailIdentity(this.user.emailAddress, password, email, true, async result => {
+		this.brainCloudClient.identity.updateUserName(this.user.emailAddress, password, email, true, async result => {
 			return this.interpretStatus(result);
 		});
 	}

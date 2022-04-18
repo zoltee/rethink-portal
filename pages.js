@@ -52,11 +52,11 @@ class Page{
     }
     validateUsername(usernameInput){
         const username = usernameInput?.val();
-        if (/^\w+$/.test(username)){
+        if (/^[a-z0-9_. -]+$/i.test(username)){
             this.bcUser.writeLS('username', username);
             return true;
         }
-        this.bcUser.showError('Invalid username');
+        this.bcUser.showError('Invalid screen name');
         return false;
     }
     validatePassword(passwordInput){
@@ -155,7 +155,7 @@ class LoginPage extends Page{
 class PickUsernamePage extends Page{
     async initialize(){
         const usernameInput = $('#username');
-        usernameInput.val(this.bcUser.readLS('username') ?? '');
+        usernameInput.val(this.bcUser.user.playerName ?? '');
         $('#next-button').click(event => {
             event.preventDefault();
             if (this.validateUsername(usernameInput)){
@@ -204,7 +204,6 @@ class SelectPasswordPage extends Page{
                 if (!this.bcUser.emailVerified){
                     document.location.href = '/confirm-your-email';
                 }
-
                 document.location.href = '/';
             } else {
                 const username = this.bcUser.readLS('username');
@@ -344,16 +343,16 @@ class ProfilePage extends Page{
                 switch ($inputField.attr('name')){
                     case 'username':
                         if (!this.validateUsername($inputField)){
-                            this.bcUser.showError('Invalid email address');
+                            this.bcUser.showError('Invalid screen name');
                             return false;
                         }
                         this.bcUser.updateUsername($inputField.val()).then(()=>{
-                            this.bcUser.showSuccess('Username updated');
+                            this.bcUser.showSuccess('Screen name updated');
                             $inputField.data('prev-val', $inputField.val());
                             disableEditing($inputField);
                         }).catch((error) =>{
                             console.log(error);
-                            this.bcUser.showError('Error saving lastname');
+                            this.bcUser.showError('Error saving screen name');
                         });
                         break;
                     case 'firstname':
@@ -363,7 +362,7 @@ class ProfilePage extends Page{
                             disableEditing($inputField);
                         }).catch((error) =>{
                             console.log(error);
-                            this.bcUser.showError('Error saving firstname');
+                            this.bcUser.showError('Error saving first name');
                         });
                         break;
                     case 'lastname':
@@ -373,7 +372,7 @@ class ProfilePage extends Page{
                             disableEditing($inputField);
                         }).catch((error) =>{
                             console.log(error);
-                            this.bcUser.showError('Error saving lastname');
+                            this.bcUser.showError('Error saving last name');
                         });
 
                         break;
@@ -408,7 +407,7 @@ class ProfilePage extends Page{
         });
 
 
-        const username = await this.bcUser.readAttribute('username');
+        const username = await this.bcUser.user.playerName;
         $('#username').val(username);
         const firstname = await this.bcUser.readAttribute('firstname');
         $('#firstname').val(firstname);
@@ -476,7 +475,8 @@ class AvatarPage extends Page{
             });
         });
         if (this.bcUser.user.pictureUrl){
-            $('.custom-avatar').attr('src', this.bcUser.user.pictureUrl);
+            $('.applied-avatar').attr('src', this.bcUser.user.pictureUrl);
+            $('.applied-avatar-bg').css('background-image', this.bcUser.user.pictureUrl);
         }
 
     }
@@ -529,7 +529,8 @@ class AvatarPage extends Page{
         }
     }
     setAvatarURL(customURL){
-      $('.custom-avatar').attr('src', customURL);
+      $('.applied-avatar').attr('src', customURL);
+      $('.applied-avatar-bg').css('background-image', customURL);
       $('#avatar-customizer').remove();
       this.bcUser.setAvatar(customURL).then(url => {
         this.bcUser.showSuccess('Avatar updated');
