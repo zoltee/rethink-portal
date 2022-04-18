@@ -98,7 +98,7 @@ class BCUser{
 		return new Promise((resolve, reject) => {
 			this.brainCloudClient.playerState.updateAttributes(attributes, false, async result => {
 				if(await this.interpretStatus(result)){
-					this.BCUserAttributes = [...this.BCUserAttributes ?? {}, ...attributes];
+					this.BCUserAttributes = {...this.BCUserAttributes ?? {}, ...attributes};
 					resolve();
 				}else{
 					reject(result.status+' : '+ result.status_message);
