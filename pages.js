@@ -127,6 +127,7 @@ class AuthenticatePage extends Page{
         event.preventDefault();
         if (!this.validateEmail(this.$emailInput)){
             this.bcUser.showError('Invalid email address');
+            return;
         }
         const email = this.$emailInput.val();
         this.bcUser.writeLS('email', email);
