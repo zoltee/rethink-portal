@@ -310,6 +310,14 @@ class ProfilePage extends Page{
                 this.checkLoggedIn();
             });
         });
+        const customizer = new AvatarCustomizer();
+        customizer.initialize({
+            glbCallback: this.setGLB.bind(this),
+            imageCallback: this.setAvatarURL.bind(this),
+        }).then(()=>{
+            console.log('Customizer loaded');
+        });
+
         const findFields = ($element) => {
             const $parent = $element.parents('.profile-field-wrapper');
             const $saveIcon = $parent.find('.profile-save');
@@ -427,13 +435,14 @@ class ProfilePage extends Page{
 }
 
 class AvatarPage extends Page{
-    customizer;
     async initialize(){
         await this.checkLoggedIn();
-        this.customizer = new AvatarCustomizer();
-        this.customizer.initialize({
+        const customizer = new AvatarCustomizer();
+        customizer.initialize({
             glbCallback: this.setGLB.bind(this),
             imageCallback: this.setAvatarURL.bind(this),
+        }).then(()=>{
+            console.log('Customizer loaded');
         });
         this.loadAvatars();
     }
