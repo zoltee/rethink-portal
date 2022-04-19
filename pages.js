@@ -310,11 +310,11 @@ class ProfilePage extends Page{
                 this.checkLoggedIn();
             });
         });
-        const customizer = new AvatarCustomizer();
-        customizer.initialize({
+        const customizer = new AvatarCustomizer({
             glbCallback: this.setGLB.bind(this),
             imageCallback: this.setAvatarURL.bind(this),
-        }).then(()=>{
+        });
+        customizer.initialize().then(()=>{
             console.log('Customizer loaded');
         });
 
@@ -437,11 +437,11 @@ class ProfilePage extends Page{
 class AvatarPage extends Page{
     async initialize(){
         await this.checkLoggedIn();
-        const customizer = new AvatarCustomizer();
-        customizer.initialize({
+        const customizer = new AvatarCustomizer({
             glbCallback: this.setGLB.bind(this),
             imageCallback: this.setAvatarURL.bind(this),
-        }).then(()=>{
+        });
+        customizer.initialize().then(()=>{
             console.log('Customizer loaded');
         });
         this.loadAvatars();
