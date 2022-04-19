@@ -40,6 +40,9 @@ class BCUser{
 		if (data) {
 			this.writeLS("BC-User", JSON.stringify(data));
 			this.user = data;
+			if (this.user.pictureUrl) {
+				document.trigger('avatarURL', this.user.pictureUrl);
+			}
 		}
 	}
 
@@ -154,7 +157,7 @@ class BCUser{
 		switch (result.status){
 			case 200: return true;
 			case 403:
-				if (result.reason_code == 40426) {
+				if (result.reason_code === 40426) {
 					if (this.retriedReconnect) {
 						document.location.href = '/authenticate';
 					}
@@ -210,6 +213,7 @@ class BCUser{
 		return new Promise((resolve, reject) => {
 			this.brainCloudClient.playerState.updateUserPictureUrl(avatarURL, async result => {
 				if(await this.interpretStatus(result)){
+					document.trigger('avatarURL', avatarURL);
 					resolve(result.data.playerPictureUrl);
 				}else{
 					reject(result.status+' : '+ result.status_message);

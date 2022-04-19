@@ -70,6 +70,9 @@ class Page{
 
     async initialize(){
         console.log('generic init', this);
+        document.on('avatarURL',(event, url)=>{
+            this.setProfileURL(url);
+        })
     }
     async checkLoggedIn(){
         console.log('checking login status');
@@ -91,7 +94,10 @@ class Page{
     redirectToLogin(){
         document.location.href = '/authenticate';
     }
-
+    setProfileURL(url){
+        $('.applied-avatar').attr('src', url);
+        $('.applied-avatar-bg').css('background-image', url);
+    }
 }
 
 class HomePage extends Page{
@@ -419,11 +425,17 @@ class ProfilePage extends Page{
     }
 
 }
+
 class AvatarPage extends Page{
+    customizer;
     async initialize(){
         await this.checkLoggedIn();
+        this.customizer = new AvatarCustomizer();
+        this.customizer.initialize({
+            glbCallback: this.setGLB.bind(this),
+            imageCallback: this.setAvatarURL.bind(this),
+        });
         this.loadAvatars();
-        this.initCustomizer();
     }
     loadAvatars(){
         const $swiperWrapper = $('.swiper-wrapper');
@@ -457,7 +469,31 @@ class AvatarPage extends Page{
         }
 
     }
-    initCustomizer(){
+    setGLB(glbURL){
+        console.log(`Avatar URL: ${glbURL}`);
+        this.bcUser.updateAttributes({avatarGLB: glbURL}).then(r => console.log('GLB saved'));
+    }
+    setAvatarURL(customURL){
+        // $('.applied-avatar').attr('src', customURL);
+        // $('.applied-avatar-bg').css('background-image', customURL);
+        this.setProfileURL(customURL);
+        $('#avatar-customizer').remove();
+        this.bcUser.setAvatar(customURL).then(url => {
+            this.bcUser.showSuccess('Avatar updated');
+        });
+    }
+
+
+}
+
+class AvatarCustomizer{
+    glbCallback;
+    imageCallback;
+    constructor(settings) {
+        this.glbCallback = settings.glbCallback ?? null;
+        this.imageCallback = settings.imageCallback ?? null;
+    }
+    async initialize(){
         $('#avatar-edit').click(event => {
             const customizer = $('<div id="avatar-customizer"><iframe width="100%" height="100%" id="customizer-frame" src="https://contxtual.readyplayer.me/avatar?frameApi" class="frame" allow="camera *; microphone *"></iframe><b id="customizer-close" style="position: absolute;top: 0;right: 20px;color: #fff;z-index: 1000;padding: 10px;cursor: pointer;">X</b></div>').appendTo('body');
             $(window).on('message', e => {
@@ -474,10 +510,6 @@ class AvatarPage extends Page{
                 customizer.remove();
             });
         });
-        if (this.bcUser.user.pictureUrl){
-            $('.applied-avatar').attr('src', this.bcUser.user.pictureUrl);
-            $('.applied-avatar-bg').css('background-image', this.bcUser.user.pictureUrl);
-        }
 
     }
     async receiveMessage(event) {
@@ -517,9 +549,13 @@ class AvatarPage extends Page{
         if (eventData.eventName === 'v1.avatar.exported') {
             const glbURL = eventData.data;
             console.log(`Avatar URL: ${eventData.data}`);
-            this.bcUser.updateAttributes({avatarGLB: glbURL}).then(r => console.log('GLB saved'));
+            if (this.glbCallback){
+                this.glbCallback(glbURL)
+            }
             const avatarURL = await this.render(glbURL);
-            this.setAvatarURL(avatarURL);
+            if (this.imageCallback){
+                this.imageCallback(avatarURL)
+            }
             return;
         }
 
@@ -528,30 +564,22 @@ class AvatarPage extends Page{
             console.log(`User with id ${eventData.data.id} set: ${JSON.stringify(eventData)}`);
         }
     }
-    setAvatarURL(customURL){
-      $('.applied-avatar').attr('src', customURL);
-      $('.applied-avatar-bg').css('background-image', customURL);
-      $('#avatar-customizer').remove();
-      this.bcUser.setAvatar(customURL).then(url => {
-        this.bcUser.showSuccess('Avatar updated');
-      });
-    }
     async render(glbURL){
         const params =
             {
                 model: glbURL,
                 scene: "halfbody-portrait-v1-transparent", //halfbody-portrait-v1, fullbody-portrait-v1 ,halfbody-portrait-v1-transparent , fullbody-portrait-v1-transparent , fullbody-posture-v1-transparent
-               // armature: "ArmatureTargetMale", // ArmatureTargetFemale
+                // armature: "ArmatureTargetMale", // ArmatureTargetFemale
             }
         return $.ajax({
-                url:'https://render.readyplayer.me/render',
-                method: "POST",
-                contentType:'application/json',
-                data: JSON.stringify(params),
-                dataType: 'json'
-            }).done(data=>{
-                console.log(data);
-                return data.renders[0];
-            });
+            url:'https://render.readyplayer.me/render',
+            method: "POST",
+            contentType:'application/json',
+            data: JSON.stringify(params),
+            dataType: 'json'
+        }).done(data=>{
+            console.log(data);
+            return data.renders[0];
+        });
     }
 }
