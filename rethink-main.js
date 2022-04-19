@@ -41,7 +41,7 @@ class BCUser{
 			this.writeLS("BC-User", JSON.stringify(data));
 			this.user = data;
 			if (this.user.pictureUrl) {
-				document.trigger('avatarURL', this.user.pictureUrl);
+				$(document).trigger('avatarURL', this.user.pictureUrl);
 			}
 		}
 	}
