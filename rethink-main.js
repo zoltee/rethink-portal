@@ -205,7 +205,7 @@ class BCUser{
 	}
 	async updateUsername(username){
 		console.log(`update username to ${username}`);
-		this.brainCloudClient.playerState.updateUserName(this.user.emailAddress, password, email, true, async result => {
+		this.brainCloudClient.playerState.updateUserName(username, async result => {
 			return this.interpretStatus(result);
 		});
 	}
