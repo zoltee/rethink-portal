@@ -206,7 +206,7 @@ class BCUser{
 	async updateUsername(username){
 		console.log(`update username to ${username}`);
 		this.brainCloudClient.playerState.updateUserName(username, async result => {
-			return this.interpretStatus(result);
+			return await this.interpretStatus(result) ? result.data?.playerName : false;
 		});
 	}
 	async setAvatar(avatarURL){
