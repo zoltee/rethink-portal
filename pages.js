@@ -70,7 +70,7 @@ class Page{
 
     async initialize(){
         console.log('generic init', this);
-        document.on('avatarURL',(event, url)=>{
+        $(document).on('avatarURL',(event, url)=>{
             this.setProfileURL(url);
         })
     }
