@@ -112,23 +112,29 @@ class HomePage extends Page{
     }
 }
 class AuthenticatePage extends Page{
-    async initialize(){
-        const emailInput = $('#email');
-        emailInput.val( this.bcUser.readLS('email') ?? '');
-        $('#register-button,#login-button').click(event =>{
-            event.preventDefault();
-            if (!this.validateEmail(emailInput)){
-                this.bcUser.showError('Invalid email address');
+    $emailInput;
+    initialize(){
+        this.$emailInput = $('#email');
+        this.$emailInput.val( this.bcUser.readLS('email') ?? '');
+        $('#register-button').click(this.handleNext.bind(this));
+        this.$emailInput.on('keydown', (event => {
+            if (event.which === 13){
+                this.handleNext(event);
             }
-            const email = emailInput.val();
-            this.bcUser.writeLS('email', email);
-            this.bcUser.emailExists(email).then(exists => {
-                document.location.href = exists ? '/login' : '/pick-username';
-            }).catch(error => {
-                this.bcUser.showError(error);
-            });
+        }));
+    }
+    handleNext(event){
+        event.preventDefault();
+        if (!this.validateEmail(this.$emailInput)){
+            this.bcUser.showError('Invalid email address');
+        }
+        const email = this.$emailInput.val();
+        this.bcUser.writeLS('email', email);
+        this.bcUser.emailExists(email).then(exists => {
+            document.location.href = exists ? '/login' : '/pick-username';
+        }).catch(error => {
+            this.bcUser.showError(error);
         });
-
     }
 }
 class LoginPage extends Page{
