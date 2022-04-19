@@ -310,13 +310,6 @@ class ProfilePage extends Page{
                 this.checkLoggedIn();
             });
         });
-        const customizer = new AvatarCustomizer({
-            glbCallback: this.setGLB.bind(this),
-            imageCallback: this.setAvatarURL.bind(this),
-        });
-        customizer.initialize().then(()=>{
-            console.log('Customizer loaded');
-        });
 
         const findFields = ($element) => {
             const $parent = $element.parents('.profile-field-wrapper');
@@ -437,11 +430,11 @@ class ProfilePage extends Page{
 class AvatarPage extends Page{
     async initialize(){
         await this.checkLoggedIn();
-        const customizer = new AvatarCustomizer({
+        const customizer = new AvatarCustomizer();
+        customizer.initialize({
             glbCallback: this.setGLB.bind(this),
             imageCallback: this.setAvatarURL.bind(this),
-        });
-        customizer.initialize().then(()=>{
+        }).then(()=>{
             console.log('Customizer loaded');
         });
         this.loadAvatars();
@@ -498,11 +491,9 @@ class AvatarPage extends Page{
 class AvatarCustomizer{
     glbCallback;
     imageCallback;
-    constructor(settings) {
+    async initialize(settings){
         this.glbCallback = settings.glbCallback ?? null;
         this.imageCallback = settings.imageCallback ?? null;
-    }
-    async initialize(){
         $('#avatar-edit').click(event => {
             const customizer = $('<div id="avatar-customizer"><iframe width="100%" height="100%" id="customizer-frame" src="https://contxtual.readyplayer.me/avatar?frameApi" class="frame" allow="camera *; microphone *"></iframe><b id="customizer-close" style="position: absolute;top: 0;right: 20px;color: #fff;z-index: 1000;padding: 10px;cursor: pointer;">X</b></div>').appendTo('body');
             $(window).on('message', e => {
