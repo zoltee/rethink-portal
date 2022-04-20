@@ -635,7 +635,7 @@ class GoogleLogin{
     intervalRef;
     initialize(){
         console.log('initializing google');
-        if(!google){
+        if(typeof google === undefined){
             this.intervalRef = window.setInterval(this.initialize.bind(this),500);
             return;
         }
