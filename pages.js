@@ -122,7 +122,41 @@ class AuthenticatePage extends Page{
                 this.handleNext(event);
             }
         }));
+        this.initializeGoogle();
     }
+    initializeGoogle(){
+        google.accounts.id.initialize({
+            client_id: "930957171392-4471lakpcubvjidtho0vsoqqhggonl1k.apps.googleusercontent.com",
+            callback: this.handleCredentialResponse.bind(this)
+        });
+        google.accounts.id.renderButton(
+            document.getElementById("google-login"),
+            { theme: "outline", size: "large" }  // customization attributes
+        );
+        google.accounts.id.prompt(); // also display the One Tap dialog
+    }
+    handleCredentialResponse(response){
+        console.log("Encoded JWT ID token: " + response.credential);
+        // decodeJwtResponse() is a custom function defined by you
+        // to decode the credential response.
+        const responsePayload = this.decodeJwtResponse(response.credential);
+console.log("decided response", responsePayload);
+        console.log("ID: " + responsePayload.sub);
+        console.log('Full Name: ' + responsePayload.name);
+        console.log('Given Name: ' + responsePayload.given_name);
+        console.log('Family Name: ' + responsePayload.family_name);
+        console.log("Image URL: " + responsePayload.picture);
+        console.log("Email: " + responsePayload.email);
+    }
+    decodeJwtResponse(token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
+    };
     handleNext(event){
         event.preventDefault();
         if (!this.validateEmail(this.$emailInput)){
@@ -314,6 +348,9 @@ class PairHeadsetPage extends Page{
                         if(currentIndex < 3){
                             $(`#headset-code-${currentIndex+1}`).focus();
                         }
+                    break;
+                    case 13:
+                        event.preventDefault();
                     break;
                 }
             }else{
