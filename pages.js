@@ -1,4 +1,8 @@
-$(async() =>{
+window.onload = function () {
+    console.log('window onload');
+}
+    $(async() =>{
+    console.log('jquery onload');
     if (!reThinkPage){
         reThinkPage = 'Home';
     }
@@ -140,7 +144,7 @@ class AuthenticatePage extends Page{
         // decodeJwtResponse() is a custom function defined by you
         // to decode the credential response.
         const responsePayload = this.decodeJwtResponse(response.credential);
-console.log("decided response", responsePayload);
+console.log("decoded response", responsePayload);
         console.log("ID: " + responsePayload.sub);
         console.log('Full Name: ' + responsePayload.name);
         console.log('Given Name: ' + responsePayload.given_name);
