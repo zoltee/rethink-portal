@@ -1,7 +1,7 @@
 window.onload = function () {
     console.log('window onload');
 }
-    $(async() =>{
+$(async() =>{
     console.log('jquery onload');
     if (!reThinkPage){
         reThinkPage = 'Home';
@@ -126,41 +126,9 @@ class AuthenticatePage extends Page{
                 this.handleNext(event);
             }
         }));
-        this.initializeGoogle();
+        const googleLogin = new GoogleLogin();
+        googleLogin.initialize();
     }
-    initializeGoogle(){
-        google.accounts.id.initialize({
-            client_id: "930957171392-4471lakpcubvjidtho0vsoqqhggonl1k.apps.googleusercontent.com",
-            callback: this.handleCredentialResponse.bind(this)
-        });
-        google.accounts.id.renderButton(
-            document.getElementById("google-login"),
-            { theme: "outline", size: "large" }  // customization attributes
-        );
-        google.accounts.id.prompt(); // also display the One Tap dialog
-    }
-    handleCredentialResponse(response){
-        console.log("Encoded JWT ID token: " + response.credential);
-        // decodeJwtResponse() is a custom function defined by you
-        // to decode the credential response.
-        const responsePayload = this.decodeJwtResponse(response.credential);
-console.log("decoded response", responsePayload);
-        console.log("ID: " + responsePayload.sub);
-        console.log('Full Name: ' + responsePayload.name);
-        console.log('Given Name: ' + responsePayload.given_name);
-        console.log('Family Name: ' + responsePayload.family_name);
-        console.log("Image URL: " + responsePayload.picture);
-        console.log("Email: " + responsePayload.email);
-    }
-    decodeJwtResponse(token) {
-        var base64Url = token.split('.')[1];
-        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-
-        return JSON.parse(jsonPayload);
-    };
     handleNext(event){
         event.preventDefault();
         if (!this.validateEmail(this.$emailInput)){
@@ -175,6 +143,7 @@ console.log("decoded response", responsePayload);
             this.bcUser.showError(error);
         });
     }
+
 }
 class LoginPage extends Page{
     $passwordInput;
@@ -660,4 +629,49 @@ class AvatarCustomizer{
             return data.renders[0];
         });
     }
+}
+
+class GoogleLogin{
+    intervalRef;
+    initialize(){
+        console.log('initializing google');
+        if(!google){
+            this.intervalRef = window.setInterval(this.initialize.bind(this),500);
+            return;
+        }
+        if (this.intervalRef){
+            window.clearInterval(this.intervalRef);
+        }
+        google.accounts.id.initialize({
+            client_id: "930957171392-4471lakpcubvjidtho0vsoqqhggonl1k.apps.googleusercontent.com",
+            callback: this.handleCredentialResponse.bind(this)
+        });
+        google.accounts.id.renderButton(
+            document.getElementById("google-login"),
+            { theme: "outline", size: "large" }  // customization attributes
+        );
+        google.accounts.id.prompt(); // also display the One Tap dialog
+    }
+    handleCredentialResponse(response){
+        console.log("Encoded JWT ID token: " + response.credential);
+        // decodeJwtResponse() is a custom function defined by you
+        // to decode the credential response.
+        const responsePayload = this.decodeJwtResponse(response.credential);
+        console.log("decoded response", responsePayload);
+        console.log("ID: " + responsePayload.sub);
+        console.log('Full Name: ' + responsePayload.name);
+        console.log('Given Name: ' + responsePayload.given_name);
+        console.log('Family Name: ' + responsePayload.family_name);
+        console.log("Image URL: " + responsePayload.picture);
+        console.log("Email: " + responsePayload.email);
+    }
+    decodeJwtResponse(token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
+    };
 }
