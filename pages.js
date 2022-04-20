@@ -139,16 +139,23 @@ class AuthenticatePage extends Page{
     }
 }
 class LoginPage extends Page{
+    $passwordInput;
     async initialize(){
-        const passwordInput = $('#password');
-        $('#signin-button').click(event =>{
-            event.preventDefault();
-            if (this.validatePassword(passwordInput)){
-                this.login(this.bcUser.readLS('email'), passwordInput.val());
+        this.$passwordInput = $('#password');
+        $('#signin-button').click(this.handleNext.bind(this));
+        this.$passwordInput.on('keydown', (event => {
+            if (event.which === 13){
+                this.handleNext(event);
             }
-        });
+        }));
     }
+    handleNext(event){
+        event.preventDefault();
+        if (this.validatePassword(this.$passwordInput)){
+            this.login(this.bcUser.readLS('email'), this.$passwordInput.val());
+        }
 
+    }
     login(email, password){
         const $emailForm = $('#email-form').hide();
         const $loading = $('#loading').show();
@@ -166,31 +173,54 @@ class LoginPage extends Page{
     }
 }
 class PickUsernamePage extends Page{
+    $usernameInput;
     async initialize(){
         const usernameInput = $('#username');
-        usernameInput.val(this.bcUser.user.playerName ?? '');
-        $('#next-button').click(event => {
-            event.preventDefault();
-            if (this.validateUsername(usernameInput)){
-                document.location.href = $("#next-button").attr('href');
+        this.$usernameInput.val(this.bcUser.user.playerName ?? '');
+        $('#next-button').click(this.handleNext.bind(this));
+        this.$passwordInput.on('keydown', (event => {
+            if (event.which === 13){
+                this.handleNext(event);
             }
-        });
-    }
-}
-class SelectPasswordPage extends Page{
-    async initialize(){
-        const passwordInput = $('#password');
-        const passwordAgainInput = $('#password-again');
-        const email = this.bcUser.readLS('email');
-        $('email-address').text(email);
-        $('#next-button').click(event => {
-            event.preventDefault();
-            if (this.validatePassword(passwordInput) && this.comparePasswords(passwordInput, passwordAgainInput)) {
-                this.register(email, passwordInput?.val());
-            }
-        });
+        }));
 
     }
+    handleNext(event){
+        event.preventDefault();
+        if (this.validateUsername(usernameInput)){
+            document.location.href = $("#next-button").attr('href');
+        }
+    }
+
+}
+class SelectPasswordPage extends Page{
+    $passwordInput;
+    $passwordAgainInput
+    async initialize(){
+        this.$passwordInput = $('#password');
+        this.$passwordAgainInput = $('#password-again');
+        const email = this.bcUser.readLS('email');
+        $('email-address').text(email);
+        $('#next-button').click(this.handleNext.bind(this));
+        this.$passwordInput.on('keydown', (event => {
+            if (event.which === 13){
+                this.handleNext(event);
+            }
+        }));
+        this.$passwordAgainInput.on('keydown', (event => {
+            if (event.which === 13){
+                this.handleNext(event);
+            }
+        }));
+    }
+    handleNext(event){
+        event.preventDefault();
+        if (this.validatePassword(tis.$passwordInput) && this.comparePasswords(this.$passwordInput, this.$passwordAgainInput)) {
+            this.register(email, this.$passwordInput?.val());
+        }
+
+    }
+
     validatePassword(passwordInput){
         const password = passwordInput?.val();
         if (/^\w+$/.test(password)){
