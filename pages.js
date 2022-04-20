@@ -128,6 +128,8 @@ class AuthenticatePage extends Page{
         }));
         const googleLogin = new GoogleLogin();
         googleLogin.initialize();
+        const facebookLogin = new FacebookLogin();
+        facebookLogin.initialize();
     }
     handleNext(event){
         event.preventDefault();
@@ -674,4 +676,45 @@ class GoogleLogin{
 
         return JSON.parse(jsonPayload);
     };
+}
+
+class FacebookLogin{
+    initialize() {
+        /*FB.login(function(response) {
+            if (response.status === 'connected') {
+                // Logged into your webpage and Facebook.
+            } else {
+                // The person is not logged into your webpage or we are unable to tell.
+            }
+        }, {scope: 'public_profile,email'});*/
+        $.getScript('https://connect.facebook.net/en_US/sdk.js', ()=>{
+            FB.init({
+                appId: '950178832349000',
+                version: 'v2.7' // or v2.1, v2.2, v2.3, ...
+            });
+            $('#facebook-login').removeAttr('disabled');
+            FB.getLoginStatus(this.statusChangeCallback.bind(this));
+        });
+    }
+    statusChangeCallback(response) {  // Called with the results from FB.getLoginStatus().
+        console.log('statusChangeCallback');
+        console.log(response);                   // The current login status of the person.
+        if (response.status === 'connected') {   // Logged into your webpage and Facebook.
+            this.handleCallback();
+        } else {                                 // Not logged into your webpage or we are unable to tell.
+            console.log('Please log into this webpage.');
+        }
+    }
+    handleCallback() {                      // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
+        console.log('Welcome!  Fetching your information.... ');
+        FB.api('/me', function(response) {
+            console.log('Successful login for: ' + response.name);
+            console.log('Thanks for logging in, ' + response.name + '!');
+        });
+    }
+    logout(){
+        FB.logout(function(response) {
+            // Person is now logged out
+        });
+    }
 }
