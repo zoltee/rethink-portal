@@ -700,7 +700,10 @@ class FacebookLogin{
         if (response.status === 'connected') {   // Logged into your webpage and Facebook.
             this.handleCallback();
         } else {                                 // Not logged into your webpage or we are unable to tell.
-            console.log('Please log into this webpage.');
+            console.log('FB login start.');
+            FB.login((response) => {
+                console.log('FB login response', response)
+            }, {scope: 'public_profile,email'});
         }
     }
     handleCallback() {                      // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
