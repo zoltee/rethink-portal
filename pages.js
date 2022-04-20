@@ -475,7 +475,6 @@ class ProfilePage extends Page{
     }
 
 }
-
 class AvatarPage extends Page{
     async initialize(){
         await this.checkLoggedIn();
@@ -637,22 +636,19 @@ class GoogleLogin{
     intervalRef;
     initialize(){
         console.log('initializing google');
-        if(typeof google === 'undefined'){
-            this.intervalRef = window.setInterval(this.initialize.bind(this),500);
-            return;
-        }
-        if (this.intervalRef){
-            window.clearInterval(this.intervalRef);
-        }
-        google.accounts.id.initialize({
-            client_id: "930957171392-4471lakpcubvjidtho0vsoqqhggonl1k.apps.googleusercontent.com",
-            callback: this.handleCredentialResponse.bind(this)
+        $.getScript('https://accounts.google.com/gsi/client', ()=>{
+            console.log('google script loaded');
+            google.accounts.id.initialize({
+                client_id: "930957171392-4471lakpcubvjidtho0vsoqqhggonl1k.apps.googleusercontent.com",
+                callback: this.handleCredentialResponse.bind(this)
+            });
+            google.accounts.id.renderButton(
+                document.getElementById("google-login"),
+                { theme: "outline", size: "large" }  // customization attributes
+            );
+            google.accounts.id.prompt(); // also display the One Tap dialog
         });
-        google.accounts.id.renderButton(
-            document.getElementById("google-login"),
-            { theme: "outline", size: "large" }  // customization attributes
-        );
-        google.accounts.id.prompt(); // also display the One Tap dialog
+
     }
     handleCredentialResponse(response){
         console.log("Encoded JWT ID token: " + response.credential);
@@ -680,6 +676,7 @@ class GoogleLogin{
 
 class FacebookLogin{
     initialize() {
+        console.log('initializing facebook');
         /*FB.login(function(response) {
             if (response.status === 'connected') {
                 // Logged into your webpage and Facebook.
@@ -688,6 +685,7 @@ class FacebookLogin{
             }
         }, {scope: 'public_profile,email'});*/
         $.getScript('https://connect.facebook.net/en_US/sdk.js', ()=>{
+            console.log('facebook script loaded');
             FB.init({
                 appId: '950178832349000',
                 version: 'v2.7' // or v2.1, v2.2, v2.3, ...
