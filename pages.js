@@ -677,6 +677,7 @@ class GoogleLogin{
 class FacebookLogin{
     initialize() {
         console.log('initializing facebook');
+        $('#facebook-login').prop('disabled', true);
         /*FB.login(function(response) {
             if (response.status === 'connected') {
                 // Logged into your webpage and Facebook.
@@ -700,10 +701,11 @@ class FacebookLogin{
         if (response.status === 'connected') {   // Logged into your webpage and Facebook.
             this.handleCallback();
         } else {                                 // Not logged into your webpage or we are unable to tell.
+            $('#facebook-login').prop('disabled', false).click(event=>{
+                this.login();
+            });
+
             console.log('FB login start.');
-            FB.login((response) => {
-                console.log('FB login response', response)
-            }, {scope: 'public_profile,email'});
         }
     }
     handleCallback() {                      // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
@@ -712,6 +714,11 @@ class FacebookLogin{
             console.log('Successful login for: ' + response.name);
             console.log('Thanks for logging in, ' + response.name + '!');
         });
+    }
+    login(){
+        FB.login((response) => {
+            console.log('FB login response', response);
+        }, {scope: 'public_profile,email'});
     }
     logout(){
         FB.logout(function(response) {
