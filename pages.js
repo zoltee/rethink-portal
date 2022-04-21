@@ -1,8 +1,4 @@
-window.onload = function () {
-    console.log('window onload');
-}
 $(async() =>{
-    console.log('jquery onload');
     if (!reThinkPage){
         reThinkPage = 'Home';
     }
@@ -647,11 +643,20 @@ class GoogleLogin{
                 client_id: "930957171392-4471lakpcubvjidtho0vsoqqhggonl1k.apps.googleusercontent.com",
                 callback: this.handleCredentialResponse.bind(this)
             });
-            google.accounts.id.renderButton(
+            $('#google-login').click(event => {
+                google.accounts.id.prompt(notification => {
+                    console.log('google popup notification', notification);
+                    if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                        console.log('Can`t display google login popup');
+                    }
+
+                }); // also display the One Tap dialog
+            });
+            /*google.accounts.id.renderButton(
                 document.getElementById("google-login"),
                 { theme: "outline", size: "large", width: 300 }  // customization attributes
-            );
-            google.accounts.id.prompt(); // also display the One Tap dialog
+            );*/
+            //
         });
 
     }
