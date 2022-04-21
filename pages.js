@@ -129,7 +129,13 @@ class AuthenticatePage extends Page{
         const googleLogin = new GoogleLogin();
         googleLogin.initialize();
         const facebookLogin = new FacebookLogin();
-        facebookLogin.initialize();
+        facebookLogin.initialize({
+            loginCallback:this.fbLoginCallback.bind(this),
+            bcUser: this.bcUser
+        });
+    }
+    fbLoginCallback(authResponse){
+
     }
     handleNext(event){
         event.preventDefault();
@@ -633,7 +639,6 @@ class AvatarCustomizer{
 }
 
 class GoogleLogin{
-    intervalRef;
     initialize(){
         console.log('initializing google');
         $.getScript('https://accounts.google.com/gsi/client', ()=>{
@@ -675,9 +680,11 @@ class GoogleLogin{
 }
 
 class FacebookLogin{
-    initialize() {
+    settings
+    initialize(settings) {
+        this.settings = settings;
         console.log('initializing facebook');
-        $('#facebook-login').prop('disabled', true);
+        // $('#facebook-login').prop('disabled', true);
         /*FB.login(function(response) {
             if (response.status === 'connected') {
                 // Logged into your webpage and Facebook.
@@ -691,7 +698,7 @@ class FacebookLogin{
                 appId: '950178832349000',
                 version: 'v2.7' // or v2.1, v2.2, v2.3, ...
             });
-            $('#facebook-login').removeAttr('disabled');
+            // $('#facebook-login').removeAttr('disabled');
             FB.getLoginStatus(this.statusChangeCallback.bind(this));
         });
     }
@@ -699,27 +706,37 @@ class FacebookLogin{
         console.log('statusChangeCallback');
         console.log(response);                   // The current login status of the person.
         if (response.status === 'connected') {   // Logged into your webpage and Facebook.
-            this.handleCallback();
+            this.handleCallback(response.authResponse);
         } else {                                 // Not logged into your webpage or we are unable to tell.
-            $('#facebook-login').prop('disabled', false).click(event=>{
-                this.login();
+            $('#facebook-login:disabled')/*.prop('disabled', false)*/
+                .click(event=>{
+                this.showLogin();
             });
 
             console.log('FB login start.');
         }
     }
-    handleCallback() {                      // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
+    handleCallback(authResponse) {                      // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
         console.log('Welcome!  Fetching your information.... ');
-        FB.api('/me', function(response) {
+        this.settings.bcUser.loginFacebook(authResponse.userID, authResponse.accessToken, true).then(data => {
+            console.log('logged in');
+            document.location.href = $('#signin-button').attr('href');
+            this.settings.loginCallback(data);
+        }).catch(error => {
+            console.log(error);
+            this.settings.bcUser.showError('The email/password you entered was incorrect');
+        });
+        FB.api('/me', response => {
+            console.log('get info from FB',response);
             console.log('Successful login for: ' + response.name);
             console.log('Thanks for logging in, ' + response.name + '!');
+           //  this.login(response);
         });
     }
-    login(){
-        FB.login((response) => {
-            console.log('FB login response', response);
-        }, {scope: 'public_profile,email'});
+    showLogin(){
+        FB.login(this.statusChangeCallback.bind(this), {scope: 'email,public_profile'});
     }
+
     logout(){
         FB.logout(function(response) {
             // Person is now logged out

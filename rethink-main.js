@@ -96,6 +96,25 @@ class BCUser{
 			/*}*/
 		});
 	}
+	async loginFacebook(facebookId, token, forceCreate = false) {
+		console.log('login user');
+		return new Promise((resolve, reject) => {
+			this.user = null;
+			this.brainCloudClient.authenticateFacebook(facebookId, token, forceCreate,
+				async result => {
+					if(await this.interpretStatus(result)){
+						this.setUser(result.data);
+						console.log("logged in");
+						resolve(this.user);
+					} else {
+						reject("Authentication error - " + result.status_message)
+					}
+				}
+			);
+			/*}*/
+		});
+	}
+
 	async updateAttributes(attributes){
 		console.log('update attributes');
 		return new Promise((resolve, reject) => {
