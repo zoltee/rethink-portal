@@ -128,11 +128,11 @@ class AuthenticatePage extends Page{
         }));
         const googleLogin = new GoogleLogin();
         googleLogin.initialize();
-        const facebookLogin = new FacebookLogin();
+        /*const facebookLogin = new FacebookLogin();
         facebookLogin.initialize({
             loginCallback:this.fbLoginCallback.bind(this),
             bcUser: this.bcUser
-        });
+        });*/
     }
     fbLoginCallback(authResponse){
 
