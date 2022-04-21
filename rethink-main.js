@@ -29,16 +29,10 @@ class BCUser{
 		console.log('not logged in');
 		return null;
 	}
-	showError(message) {
-		$("#error-message").show().text(message);
-	}
-	showSuccess(message) {
-		$("#success-message").show().text(message);
-	}
 	setUser(data) {
 		console.log('setting user data',data);
 		if (data) {
-			this.writeLS("BC-User", JSON.stringify(data));
+			Utils.writeLS("BC-User", JSON.stringify(data));
 			this.user = data;
 			if (this.user.pictureUrl) {
 				$(document).trigger('avatarURL', this.user.pictureUrl);
@@ -53,12 +47,6 @@ class BCUser{
 		} else {
 			return this.reconnectUser();
 		}
-	}
-	readLS(field){
-		return localStorage.getItem(BCUser.LSPrefix+field);
-	}
-	writeLS(field, value){
-		localStorage.setItem(BCUser.LSPrefix+field, value);
 	}
 	async reconnectUser() {
 		console.log('reconnecting user');
@@ -104,10 +92,29 @@ class BCUser{
 				async result => {
 					if(await this.interpretStatus(result)){
 						this.setUser(result.data);
-						console.log("logged in");
+						console.log("facebook logged in");
 						resolve(this.user);
 					} else {
-						reject("Authentication error - " + result.status_message)
+						reject("FB Authentication error - " + result.status_message)
+					}
+				}
+			);
+			/*}*/
+		});
+	}
+
+	async loginGoogle(googleUserId, serverAuthCode, forceCreate = false) {
+		console.log('login user');
+		return new Promise((resolve, reject) => {
+			this.user = null;
+			this.brainCloudClient.AuthenticateGoogle(googleUserId, serverAuthCode, forceCreate,
+				async result => {
+					if(await this.interpretStatus(result)){
+						this.setUser(result.data);
+						console.log("google logged in");
+						resolve(this.user);
+					} else {
+						reject("G Authentication error - " + result.status_message)
 					}
 				}
 			);
@@ -190,7 +197,7 @@ class BCUser{
 				}
 				break;
 			default:
-				if (showError) this.showError(result.status_message);
+				if (showError) Utils.showError(result.status_message);
 				return false;
 			break;
 		}

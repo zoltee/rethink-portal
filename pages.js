@@ -1,3 +1,4 @@
+var bcUser = new BCUser(BCAppId, BCSecret, BCVersion);
 $(async() =>{
     if (!reThinkPage){
         reThinkPage = 'Home';
@@ -37,12 +38,14 @@ $(async() =>{
         await page.initialize();
     }
 });
-class Page{
-    bcUser;
-    constructor() {
-        this.bcUser = new BCUser(BCAppId, BCSecret, BCVersion);
+class Utils{
+    static showError(message) {
+        $("#error-message").show().text(message);
     }
-    validateEmail(emailInput){
+    static showSuccess(message) {
+        $("#success-message").show().text(message);
+    }
+    static validateEmail(emailInput){
         const email = emailInput.val();
         // if (/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email)){
         if (/^(?:[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$/.test(email)){
@@ -50,49 +53,66 @@ class Page{
         }
         return false;
     }
-    validateUsername(usernameInput){
+    static validateUsername(usernameInput){
         const username = usernameInput?.val();
         if (/^[a-z0-9_. -]+$/i.test(username)){
-            this.bcUser.writeLS('username', username);
+            Utils.writeLS('username', username);
             return true;
         }
-        this.bcUser.showError('Invalid screen name');
+        Utils.showError('Invalid screen name');
         return false;
     }
-    validatePassword(passwordInput){
+    static validatePassword(passwordInput){
         const password = passwordInput?.val();
         if (/^\w+$/.test(password)){
             return true;
         }
-        this.bcUser.showError('Invalid password');
+        Utils.showError('Invalid password');
         return false;
     }
+    static comparePasswords(passwordInput, passwordAgainInput){
+        const password = passwordInput?.val();
+        const passwordAgain = passwordAgainInput?.val();
+        if (password === passwordAgain){
+            return true;
+        }
+        Utils.showError("Passwords don't match");
+        return false;
+    }
+    static readLS(field){
+        return localStorage.getItem(BCUser.LSPrefix+field);
+    }
+    static writeLS(field, value){
+        localStorage.setItem(BCUser.LSPrefix+field, value);
+    }
+    static redirectToLogin(){
+        document.location.href = '/authenticate';
+    }
+    static async checkLoggedIn(){
+        console.log('checking login status');
+        const isLoggedIn = bcUser.isUserLoggedIn();
+        if (isLoggedIn === null){
+            console.log('no user info');
+            Utils.redirectToLogin();
+        }
+        if (isLoggedIn === false){
+            console.log('not logged in');
+            try {
+                await bcUser.reconnectUser();
+            }catch(e){
+                console.log(e);
+                Utils.redirectToLogin();
+            }
+        }
+    }
 
+}
+class Page{
     async initialize(){
         console.log('generic init', this);
         $(document).on('avatarURL',(event, url)=>{
             this.setProfileURL(url);
         })
-    }
-    async checkLoggedIn(){
-        console.log('checking login status');
-        const isLoggedIn = this.bcUser.isUserLoggedIn();
-        if (isLoggedIn === null){
-            console.log('no user info');
-            this.redirectToLogin();
-        }
-        if (isLoggedIn === false){
-            console.log('not logged in');
-            try {
-                await this.bcUser.reconnectUser();
-            }catch(e){
-                console.log(e);
-                this.redirectToLogin();
-            }
-        }
-    }
-    redirectToLogin(){
-        document.location.href = '/authenticate';
     }
     setProfileURL(url){
         $('.applied-avatar').attr('src', url);
@@ -102,11 +122,11 @@ class Page{
 
 class HomePage extends Page{
     async initialize(){
-        await this.checkLoggedIn();
+        await Utils.checkLoggedIn();
         $('#logout-link, #logout-button').click(event=>{
             event.preventDefault();
-            this.bcUser.logout().then(()=>{
-                this.checkLoggedIn();
+            bcUser.logout().then(()=>{
+                Utils.redirectToLogin();
             });
         });
     }
@@ -114,40 +134,54 @@ class HomePage extends Page{
 class AuthenticatePage extends Page{
     $emailInput;
     initialize(){
+        const emailLogin = new EmailPasswordLogin();
         this.$emailInput = $('#email');
-        this.$emailInput.val( this.bcUser.readLS('email') ?? '');
+        emailLogin.initialize({
+            $emailInput,
+            loginCallback: this.emailLoginCallback.bind(this)
+        });
+     /*   this.$emailInput.val( Utils.readLS('email') ?? '');
         $('#register-button').click(this.handleNext.bind(this));
         this.$emailInput.on('keydown', (event => {
             if (event.which === 13){
                 this.handleNext(event);
             }
-        }));
+        }));*/
         const googleLogin = new GoogleLogin();
-        googleLogin.initialize();
-        /*const facebookLogin = new FacebookLogin();
+        googleLogin.initialize({
+            loginCallback:this.googleLoginCallback.bind(this)
+        });
+        const facebookLogin = new FacebookLogin();
         facebookLogin.initialize({
-            loginCallback:this.fbLoginCallback.bind(this),
-            bcUser: this.bcUser
-        });*/
-    }
-    fbLoginCallback(authResponse){
-
-    }
-    handleNext(event){
-        event.preventDefault();
-        if (!this.validateEmail(this.$emailInput)){
-            this.bcUser.showError('Invalid email address');
-            return;
-        }
-        const email = this.$emailInput.val();
-        this.bcUser.writeLS('email', email);
-        this.bcUser.emailExists(email).then(exists => {
-            document.location.href = exists ? '/login' : '/pick-username';
-        }).catch(error => {
-            this.bcUser.showError(error);
+            loginCallback:this.fbLoginCallback.bind(this)
         });
     }
+    emailLoginCallback(exists){
+        document.location.href = exists ? '/login' : '/pick-username';
+    }
+    googleLoginCallback(responsePayload){
+        bcUser.loginGoogle(responsePayload.sub, responsePayload.jti, true).then(data => {
+            console.log('G logged in', data);
 
+            // document.location.href = $('#signin-button').attr('href');
+
+        }).catch(error => {
+            console.log(error);
+            Utils.showError('The email/password you entered was incorrect');
+        });
+
+    }
+    fbLoginCallback(authResponse){
+        bcUser.loginFacebook(authResponse.userID, authResponse.accessToken, true).then(data => {
+            console.log('FB logged in', data);
+            // document.location.href = $('#signin-button').attr('href');
+
+        }).catch(error => {
+            console.log(error);
+            Utils.showError('The email/password you entered was incorrect');
+        });
+
+    }
 }
 class LoginPage extends Page{
     $passwordInput;
@@ -162,22 +196,22 @@ class LoginPage extends Page{
     }
     handleNext(event){
         event.preventDefault();
-        if (this.validatePassword(this.$passwordInput)){
-            this.login(this.bcUser.readLS('email'), this.$passwordInput.val());
+        if (Utils.validatePassword(this.$passwordInput)){
+            this.login(Utils.readLS('email'), this.$passwordInput.val());
         }
 
     }
     login(email, password){
         const $emailForm = $('#email-form').hide();
         const $loading = $('#loading').show();
-        this.bcUser.loginUser(email, password, false)
+        bcUser.loginUser(email, password, false)
             .then(data => {
                 console.log('logged in');
                 document.location.href = $('#signin-button').attr('href');
             })
             .catch(error => {
                 console.log(error);
-                this.bcUser.showError('The email/password you entered was incorrect');
+                Utils.showError('The email/password you entered was incorrect');
                 $loading.hide();
                 $emailForm.show();
             });
@@ -187,7 +221,7 @@ class PickUsernamePage extends Page{
     $usernameInput;
     async initialize(){
         const usernameInput = $('#username');
-        this.$usernameInput.val(this.bcUser.user.playerName ?? '');
+        this.$usernameInput.val(bcUser.user.playerName ?? '');
         $('#next-button').click(this.handleNext.bind(this));
         this.$passwordInput.on('keydown', (event => {
             if (event.which === 13){
@@ -198,7 +232,7 @@ class PickUsernamePage extends Page{
     }
     handleNext(event){
         event.preventDefault();
-        if (this.validateUsername(usernameInput)){
+        if (Utils.validateUsername(usernameInput)){
             document.location.href = $("#next-button").attr('href');
         }
     }
@@ -210,7 +244,7 @@ class SelectPasswordPage extends Page{
     async initialize(){
         this.$passwordInput = $('#password');
         this.$passwordAgainInput = $('#password-again');
-        const email = this.bcUser.readLS('email');
+        const email = Utils.readLS('email');
         $('email-address').text(email);
         $('#next-button').click(this.handleNext.bind(this));
         this.$passwordInput.on('keydown', (event => {
@@ -226,49 +260,32 @@ class SelectPasswordPage extends Page{
     }
     handleNext(event){
         event.preventDefault();
-        if (this.validatePassword(tis.$passwordInput) && this.comparePasswords(this.$passwordInput, this.$passwordAgainInput)) {
+        const email = Utils.readLS('email');
+        if (Utils.validatePassword(this.$passwordInput) && Utils.comparePasswords(this.$passwordInput, this.$passwordAgainInput)) {
             this.register(email, this.$passwordInput?.val());
         }
-
     }
 
-    validatePassword(passwordInput){
-        const password = passwordInput?.val();
-        if (/^\w+$/.test(password)){
-            return true;
-        }
-        this.bcUser.showError("Password invalid");
-        return false;
-    }
-    comparePasswords(passwordInput, passwordAgainInput){
-        const password = passwordInput?.val();
-        const passwordAgain = passwordAgainInput?.val();
-        if (password === passwordAgain){
-            return true;
-        }
-        this.bcUser.showError("Passwords don't match");
-        return false;
-    }
     async register(email, password){
         const $emailForm = $('#email-form').hide();
         const $loading = $('#loading').show();
         try{
-            const data = await this.bcUser.loginUser(email, password, true);
+            const data = await bcUser.loginUser(email, password, true);
             if(data && data.newUser === "false"){
-                if (!this.bcUser.emailVerified){
+                if (!bcUser.user.emailVerified){
                     document.location.href = '/confirm-your-email';
                 }
                 document.location.href = '/';
             } else {
-                const username = this.bcUser.readLS('username');
+                const username = Utils.readLS('username');
                 if (username){
-                    await this.bcUser.updateUsername(username);
+                    await bcUser.updateUsername(username);
                 }
                 document.location.href = $('#next-button').attr('href');
             }
         }catch(error){
                 console.log(error);
-                this.bcUser.showError('The email/password you entered was incorrect');
+                Utils.showError('The email/password you entered was incorrect');
                 $loading.hide();
                 $emailForm.show();
             }
@@ -276,7 +293,7 @@ class SelectPasswordPage extends Page{
 }
 class ConfirmEmailPage extends Page{
     async initialize(){
-        $('#email-address').text(this.bcUser.readLS('email'));
+        $('#email-address').text(Utils.readLS('email'));
         $("#next-button").click(event => {
             event.preventDefault();
         });
@@ -284,7 +301,7 @@ class ConfirmEmailPage extends Page{
     }
     checkStatus(){
         const intervalID = setInterval(() => {
-            this.bcUser.readUserData().then(userData => {
+            bcUser.readUserData().then(userData => {
                 if (userData?.emailVerified){
                     document.location.href = $("#next-button").attr('href');
                 }
@@ -298,7 +315,7 @@ class PairHeadsetPage extends Page{
         const codeInputs = $('input[name="headset-code[]"]');
         $("#next-button").click(event => {
             if (!this.validateHeadsetCode(codeInputs)) {
-                this.bcUser.showError("Invalid headset code");
+                Utils.showError("Invalid headset code");
                 event.preventDefault();
             }
         });
@@ -348,17 +365,17 @@ class PairHeadsetPage extends Page{
             }
             code += codeInputs[i].value;
         }
-        this.bcUser.writeLS("headset-code", code);
+        Utils.writeLS("headset-code", code);
         return true;
     }
 }
 class ProfilePage extends Page{
     async initialize(){
-        await this.checkLoggedIn();
+        await Utils.checkLoggedIn();
         $('#logout-link, #logout-button').click(event=>{
             event.preventDefault();
-            this.bcUser.logout().then(()=>{
-                this.checkLoggedIn();
+            bcUser.logout().then(()=>{
+                 Utils.redirectToLogin();
             });
         });
 
@@ -400,76 +417,76 @@ class ProfilePage extends Page{
             $saveIcon.click(e=>{
                 switch ($inputField.attr('name')){
                     case 'username':
-                        if (!this.validateUsername($inputField)){
-                            this.bcUser.showError('Invalid screen name');
+                        if (!Utils.validateUsername($inputField)){
+                            Utils.showError('Invalid screen name');
                             return false;
                         }
-                        this.bcUser.updateUsername($inputField.val()).then(()=>{
-                            this.bcUser.showSuccess('Screen name updated');
+                        bcUser.updateUsername($inputField.val()).then(()=>{
+                            Utils.showSuccess('Screen name updated');
                             $inputField.data('prev-val', $inputField.val());
                             disableEditing($inputField);
                         }).catch((error) =>{
                             console.log(error);
-                            this.bcUser.showError('Error saving screen name');
+                            Utils.showError('Error saving screen name');
                         });
                         break;
                     case 'firstname':
-                        this.bcUser.updateAttributes({firstname:$inputField.val()}).then(()=>{
-                            this.bcUser.showSuccess('First Name updated');
+                        bcUser.updateAttributes({firstname:$inputField.val()}).then(()=>{
+                            Utils.showSuccess('First Name updated');
                             $inputField.data('prev-val', $inputField.val());
                             disableEditing($inputField);
                         }).catch((error) =>{
                             console.log(error);
-                            this.bcUser.showError('Error saving first name');
+                            Utils.showError('Error saving first name');
                         });
                         break;
                     case 'lastname':
-                        this.bcUser.updateAttributes({lastname:$inputField.val()}).then(()=>{
-                            this.bcUser.showSuccess('Last Name updated');
+                        bcUser.updateAttributes({lastname:$inputField.val()}).then(()=>{
+                            Utils.showSuccess('Last Name updated');
                             $inputField.data('prev-val', $inputField.val());
                             disableEditing($inputField);
                         }).catch((error) =>{
                             console.log(error);
-                            this.bcUser.showError('Error saving last name');
+                            Utils.showError('Error saving last name');
                         });
 
                         break;
                     case 'email':
-                        if (!this.validateEmail($inputField)){
-                            this.bcUser.showError('Invalid email address');
+                        if (!Utils.validateEmail($inputField)){
+                            Utils.showError('Invalid email address');
                             return false;
                         }
-                        if (!this.validatePassword($passwordField)){
-                            this.bcUser.showError('Invalid password');
+                        if (!Utils.validatePassword($passwordField)){
+                            Utils.showError('Invalid password');
                             return false;
                         }
                         const email = $inputField.val();
-                        this.bcUser.updateEmail(email, $passwordField.val()).then(()=>{
-                            this.bcUser.showSuccess('Email address updated');
+                        bcUser.updateEmail(email, $passwordField.val()).then(()=>{
+                            Utils.showSuccess('Email address updated');
                             $inputField.data('prev-val', email);
-                            this.bcUser.writeLS('email', email);
+                            Utils.writeLS('email', email);
                             disableEditing($inputField);
                             // re-read all the data
-                            this.bcUser.reconnectUser();
+                            bcUser.reconnectUser();
                         }).catch((error) =>{
                             console.log(error);
-                            this.bcUser.showError('Error saving email address. Possibly wrong password');
+                            Utils.showError('Error saving email address. Possibly wrong password');
                         });
                         break;
                 }
             });
         }
 
-        this.bcUser.readUser().then(data => {
+        bcUser.readUser().then(data => {
             $('#email').val(data.emailAddress);
         });
 
 
-        const username = await this.bcUser.user.playerName;
+        const username = await bcUser.user.playerName;
         $('#username').val(username);
-        const firstname = await this.bcUser.readAttribute('firstname');
+        const firstname = await bcUser.readAttribute('firstname');
         $('#firstname').val(firstname);
-        const lastname = await this.bcUser.readAttribute('lastname');
+        const lastname = await bcUser.readAttribute('lastname');
         $('#lastname').val(lastname);
         $(".profile-edit").click(event => {
             enableEditing($(event.currentTarget));
@@ -479,7 +496,7 @@ class ProfilePage extends Page{
 }
 class AvatarPage extends Page{
     async initialize(){
-        await this.checkLoggedIn();
+        await Utils.checkLoggedIn();
         const customizer = new AvatarCustomizer();
         customizer.initialize({
             glbCallback: this.setGLB.bind(this),
@@ -523,15 +540,15 @@ class AvatarPage extends Page{
     }
     setGLB(glbURL){
         console.log(`Avatar URL: ${glbURL}`);
-        this.bcUser.updateAttributes({avatarGLB: glbURL}).then(r => console.log('GLB saved'));
+        bcUser.updateAttributes({avatarGLB: glbURL}).then(r => console.log('GLB saved'));
     }
     setAvatarURL(customURL){
         // $('.applied-avatar').attr('src', customURL);
         // $('.applied-avatar-bg').css('background-image', customURL);
         this.setProfileURL(customURL);
         $('#avatar-customizer').remove();
-        this.bcUser.setAvatar(customURL).then(url => {
-            this.bcUser.showSuccess('Avatar updated');
+        bcUser.setAvatar(customURL).then(url => {
+            Utils.showSuccess('Avatar updated');
         });
     }
 
@@ -634,8 +651,40 @@ class AvatarCustomizer{
     }
 }
 
+class EmailPasswordLogin{
+    settings;
+    initialize(settings){
+        this.settings = settings;
+        console.log('initializing email/password login');
+        this.settings.$emailInput.val(Utils.readLS('email') ?? '');
+        $('#register-button').click(this.handleNext.bind(this));
+        this.settings.$emailInput.on('keydown', (event => {
+            if (event.which === 13){
+                this.handleNext(event);
+            }
+        }));
+    }
+    handleNext(event){
+        event.preventDefault();
+        if (!Utils.validateEmail(this.$emailInput)){
+            Utils.showError('Invalid email address');
+            return;
+        }
+        const email = this.$emailInput.val();
+        Utils.writeLS('email', email);
+        sett
+        bcUser.emailExists(email).then(exists => {
+            setting.loginCallback(exists);
+        }).catch(error => {
+            Utils.showError(error);
+        });
+    }
+
+}
 class GoogleLogin{
-    initialize(){
+    settings
+    initialize(settings){
+        this.settings = settings;
         console.log('initializing google');
         $.getScript('https://accounts.google.com/gsi/client', ()=>{
             console.log('google script loaded');
@@ -644,19 +693,13 @@ class GoogleLogin{
                 callback: this.handleCredentialResponse.bind(this)
             });
             $('#google-login').click(event => {
-                google.accounts.id.prompt(notification => {
+                google.accounts.id.prompt(notification => {// display the One Tap dialog
                     console.log('google popup notification', notification);
                     if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
                         console.log('Can`t display google login popup');
                     }
-
-                }); // also display the One Tap dialog
+                });
             });
-            /*google.accounts.id.renderButton(
-                document.getElementById("google-login"),
-                { theme: "outline", size: "large", width: 300 }  // customization attributes
-            );*/
-            //
         });
 
     }
@@ -672,6 +715,8 @@ class GoogleLogin{
         console.log('Family Name: ' + responsePayload.family_name);
         console.log("Image URL: " + responsePayload.picture);
         console.log("Email: " + responsePayload.email);
+
+        this.settings.loginCallback(responsePayload);
     }
     decodeJwtResponse(token) {
         var base64Url = token.split('.')[1];
@@ -722,14 +767,7 @@ class FacebookLogin{
     }
     handleCallback(authResponse) {                      // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
         console.log('Welcome!  Fetching your information.... ');
-        this.settings.bcUser.loginFacebook(authResponse.userID, authResponse.accessToken, true).then(data => {
-            console.log('logged in');
-            document.location.href = $('#signin-button').attr('href');
-            this.settings.loginCallback(data);
-        }).catch(error => {
-            console.log(error);
-            this.settings.bcUser.showError('The email/password you entered was incorrect');
-        });
+        this.settings.loginCallback(authResponse);
         FB.api('/me', response => {
             console.log('get info from FB',response);
             console.log('Successful login for: ' + response.name);
