@@ -69,7 +69,7 @@ class AuthenticatePage extends Page{
         const emailLogin = new EmailPasswordLogin();
         this.$emailInput = $('#email');
         emailLogin.initialize({
-            $emailInput,
+            $emailInput: this.$emailInput,
             loginCallback: this.emailLoginCallback.bind(this)
         });
      /*   this.$emailInput.val( Utils.readLS('email') ?? '');
