@@ -708,12 +708,11 @@ class FacebookLogin{
         if (response.status === 'connected') {   // Logged into your webpage and Facebook.
             this.handleCallback(response.authResponse);
         } else {                                 // Not logged into your webpage or we are unable to tell.
-            $('#facebook-login:disabled')/*.prop('disabled', false)*/
-                .click(event=>{
+            $('#facebook-login').click(event=>{
                 this.showLogin();
             });
 
-            console.log('FB login start.');
+            console.log('FB login ready.');
         }
     }
     handleCallback(authResponse) {                      // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
