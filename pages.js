@@ -649,7 +649,7 @@ class GoogleLogin{
             });
             google.accounts.id.renderButton(
                 document.getElementById("google-login"),
-                { theme: "outline", size: "large" }  // customization attributes
+                { theme: "outline", size: "large", width: 300 }  // customization attributes
             );
             google.accounts.id.prompt(); // also display the One Tap dialog
         });
