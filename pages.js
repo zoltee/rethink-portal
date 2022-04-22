@@ -639,6 +639,7 @@ class GoogleLogin{
 
     }
     handleCredentialResponse(response){
+        console.log('google callback', arguments);
         console.log("Encoded JWT ID token: " + response.credential);
         // decodeJwtResponse() is a custom function defined by you
         // to decode the credential response.
