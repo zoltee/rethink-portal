@@ -446,11 +446,18 @@ class AvatarPage extends Page{
         this.loadAvatars();
     }
     loadAvatars(){
-        /*const $swiperWrapper = $('.swiper-wrapper');
+        const $swiperWrapper = $('.swiper-wrapper');
         const demoSlides = $swiperWrapper.find('.swiper-slide');
-        const template = demoSlides[0].outerHTML;
-        demoSlides.remove();
-        const avatars = [
+        //const template = demoSlides[0].outerHTML;
+        // const urlMatch = new RegExp('src=".*?"','gm');
+        const avatarURLs = [];
+        demoSlides.each((index, element) => {
+            avatarURLs.push(element.src);
+            if (this.bcUser.user.pictureUrl === element.src){
+                element.classList.add("selected");
+            }
+        });
+        /*const avatars = [
             'https://media.sketchfab.com/models/7a8fa15955084fa3bf7103ed1818c584/thumbnails/c092fb3800de440995982870feda61d9/08e1cec1ba8f49ffa44e176ec4fcb368.jpeg',
             'https://cdna.artstation.com/p/assets/images/images/039/558/340/large/wolf3d-andra.jpg?1626256412',
             'https://media.sketchfab.com/models/a9c1f5d2cd7c4ca3bb46272998d3e451/thumbnails/77ef8c5191cb48eb8e1def561dbe72b1/930dc29f6203489fbe51524b24c7cba0.jpeg',
@@ -471,7 +478,7 @@ class AvatarPage extends Page{
                 prevEl: '.swiper-button-prev',
             },
         });
-        const urlMatch = new RegExp('src=".*?"','gm');
+
         /*for (const avaratURL of avatars) {
             swiper.appendSlide(template.replace(urlMatch, `src="${avaratURL}"`));
         }*/
