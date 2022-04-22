@@ -107,7 +107,7 @@ class BCUser{
 		console.log('login user');
 		return new Promise((resolve, reject) => {
 			this.user = null;
-			this.brainCloudClient.AuthenticateGoogle(googleUserId, serverAuthCode, forceCreate,
+			this.brainCloudClient.authenticateGoogle(googleUserId, serverAuthCode, forceCreate,
 				async result => {
 					if(await this.interpretStatus(result)){
 						this.setUser(result.data);
