@@ -642,12 +642,12 @@ class GoogleLogin{
 
 
 
-            google.accounts.id.prompt(notification => {// display the One Tap dialog
+           /* google.accounts.id.prompt(notification => {// display the One Tap dialog
                 console.log('google popup notification', notification);
                 if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
                     console.log('Can`t display google login popup');
                 }
-            });
+            });*/
         });
 
 
