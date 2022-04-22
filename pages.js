@@ -446,7 +446,7 @@ class AvatarPage extends Page{
         this.loadAvatars();
     }
     loadAvatars(){
-        const $swiperWrapper = $('.swiper-wrapper');
+        /*const $swiperWrapper = $('.swiper-wrapper');
         const demoSlides = $swiperWrapper.find('.swiper-slide');
         const template = demoSlides[0].outerHTML;
         demoSlides.remove();
@@ -457,7 +457,7 @@ class AvatarPage extends Page{
             'https://www.coinkolik.com/wp-content/uploads/2021/12/sanal-platformlar-icin-avatar-projesi-ready-player-me-13-milyon-dolar-yatirim-aldi.jpeg',
             'https://roadtovrlive-5ea0.kxcdn.com/wp-content/uploads/2021/01/readyplayerme-avatar-liv-vr-streaming-238x178.jpg',
             'https://media.sketchfab.com/models/f2791ae3c40c4920a158f96c7dc46f53/thumbnails/1ff36819e8b64a8f831f2c8dbfe6094c/53721a817c5e435b880e0298dc6ea8ce.jpeg'
-        ];
+        ];*/
         const swiper = new Swiper('.swiper', {
             loop: true,
             slidesPerView: 3,
@@ -472,9 +472,9 @@ class AvatarPage extends Page{
             },
         });
         const urlMatch = new RegExp('src=".*?"','gm');
-        for (const avaratURL of avatars) {
+        /*for (const avaratURL of avatars) {
             swiper.appendSlide(template.replace(urlMatch, `src="${avaratURL}"`));
-        }
+        }*/
 
     }
     setGLB(glbURL){
