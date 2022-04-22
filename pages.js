@@ -447,15 +447,21 @@ class AvatarPage extends Page{
     }
     loadAvatars(){
         const $swiperWrapper = $('.swiper-wrapper');
-        const demoSlides = $swiperWrapper.find('.swiper-slide');
+        const sampleAvatars = $swiperWrapper.find('.swiper-slide .sample-avatar');
         //const template = demoSlides[0].outerHTML;
         // const urlMatch = new RegExp('src=".*?"','gm');
         const avatarURLs = [];
-        demoSlides.each((index, element) => {
+        sampleAvatars.each((index, element) => {
             avatarURLs.push(element.src);
             if (this.bcUser.user.pictureUrl === element.src){
                 element.classList.add("selected");
             }
+        });
+        $('.swiper-wrapper').on('click', '.swiper-slide',event => {
+            event.preventDefault();
+           const $avatarWrapper = $(event.target);
+            this.setAvatarURL($avatarWrapper.find('.sample-avatar').attr('src'));
+            this.setGLB('');
         });
         /*const avatars = [
             'https://media.sketchfab.com/models/7a8fa15955084fa3bf7103ed1818c584/thumbnails/c092fb3800de440995982870feda61d9/08e1cec1ba8f49ffa44e176ec4fcb368.jpeg',
