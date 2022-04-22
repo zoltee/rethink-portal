@@ -626,9 +626,15 @@ class GoogleLogin{
                         client_id: "930957171392-4471lakpcubvjidtho0vsoqqhggonl1k.apps.googleusercontent.com",
                         scope: 'email profile openid',
                         prompt: 'select_account',
-                        response_type: 'id_token,code'
+                        response_type: 'id_token code'
                     },response =>{
-                        this.settings.loginCallback(response.code, response.credential);
+                        console.log('google callback', response);
+                        if (response.error) {
+                            Util.showError('Error logging in to google', response.error);
+                            return;
+                        }
+
+                        this.settings.loginCallback(response.access_token, response.id_token);
                     });
                 });
 
