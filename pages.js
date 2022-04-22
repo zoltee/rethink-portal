@@ -630,7 +630,7 @@ class GoogleLogin{
                     },response =>{
                         console.log('google callback', response);
                         if (response.error) {
-                            Util.showError('Error logging in to google', response.error);
+                            Utils.showError(`Error logging in to google ${response.error}:${response.error_subtype}`);
                             return;
                         }
 
