@@ -91,8 +91,8 @@ class AuthenticatePage extends Page{
     emailLoginCallback(exists){
         document.location.href = exists ? '/login' : '/pick-username';
     }
-    googleLoginCallback(responsePayload){
-        bcUser.loginGoogle(responsePayload.sub, responsePayload.jti, true).then(data => {
+    googleLoginCallback(responsePayload, credential){
+        bcUser.loginGoogle(responsePayload.sub, credential, true).then(data => {
             console.log('G logged in', data);
 
             // document.location.href = $('#signin-button').attr('href');
@@ -648,7 +648,7 @@ class GoogleLogin{
         console.log("Image URL: " + responsePayload.picture);
         console.log("Email: " + responsePayload.email);
 
-        this.settings.loginCallback(responsePayload);
+        this.settings.loginCallback(responsePayload, response.credential);
     }
     decodeJwtResponse(token) {
         var base64Url = token.split('.')[1];
