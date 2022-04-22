@@ -99,7 +99,7 @@ class AuthenticatePage extends Page{
 
         }).catch(error => {
             console.log(error);
-            Utils.showError('The email/password you entered was incorrect');
+            Utils.showError('The google account you selected didn\'t work');
         });
 
     }
@@ -110,7 +110,7 @@ class AuthenticatePage extends Page{
 
         }).catch(error => {
             console.log(error);
-            Utils.showError('The email/password you entered was incorrect');
+            Utils.showError('The facebook account you selected didn\'t work');
         });
 
     }
@@ -618,11 +618,14 @@ class GoogleLogin{
     initialize(settings){
         this.settings = settings;
         console.log('initializing google');
-        $.getScript('https://accounts.google.com/gsi/client', ()=>{
-            console.log('google script loaded');
-            google.accounts.id.initialize({
-                client_id: "930957171392-4471lakpcubvjidtho0vsoqqhggonl1k.apps.googleusercontent.com",
-                callback: this.handleCredentialResponse.bind(this)
+        $.getScript('https://apis.google.com/js/platform.js', ()=> {
+            gapi.load('auth2', () => {
+                console.log('google script loaded');
+                gapi.auth2.authorize({
+                    client_id: "930957171392-4471lakpcubvjidtho0vsoqqhggonl1k.apps.googleusercontent.com",
+                    scope: 'email profile openid',
+                    response_type: 'code'
+                },this.handleCredentialResponse.bind(this));
             });
             $('#google-login').click(event => {
                 google.accounts.id.prompt(notification => {// display the One Tap dialog
