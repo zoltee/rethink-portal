@@ -684,7 +684,17 @@ class FacebookLogin{
     initialize(settings) {
         this.settings = settings;
         console.log('initializing facebook');
-        // $('#facebook-login').prop('disabled', true);
+        $('#facebook-login').click(event=>{
+            $.getScript('https://connect.facebook.net/en_US/sdk.js', ()=>{
+                console.log('facebook script loaded');
+                FB.init({
+                    appId: '950178832349000',
+                    version: 'v2.7' // or v2.1, v2.2, v2.3, ...
+                });
+                FB.getLoginStatus(this.statusChangeCallback.bind(this));
+            });
+
+        });
         /*FB.login(function(response) {
             if (response.status === 'connected') {
                 // Logged into your webpage and Facebook.
@@ -692,18 +702,9 @@ class FacebookLogin{
                 // The person is not logged into your webpage or we are unable to tell.
             }
         }, {scope: 'public_profile,email'});*/
-        $.getScript('https://connect.facebook.net/en_US/sdk.js', ()=>{
-            console.log('facebook script loaded');
-            FB.init({
-                appId: '950178832349000',
-                version: 'v2.7' // or v2.1, v2.2, v2.3, ...
-            });
-            // $('#facebook-login').removeAttr('disabled');
-            FB.getLoginStatus(this.statusChangeCallback.bind(this));
-        });
     }
     statusChangeCallback(response) {  // Called with the results from FB.getLoginStatus().
-        console.log('statusChangeCallback');
+        console.log('fb statusChangeCallback');
         console.log(response);                   // The current login status of the person.
         if (response.status === 'connected') {   // Logged into your webpage and Facebook.
             this.handleCallback(response.authResponse);
