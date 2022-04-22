@@ -94,8 +94,11 @@ class AuthenticatePage extends Page{
     googleLoginCallback(id_token, access_token){
         bcUser.loginGoogle(id_token, access_token, true).then(data => {
             console.log('G logged in', data);
-
-            // document.location.href = $('#signin-button').attr('href');
+            if(data && data.newUser === "false"){
+                document.location.href = '/';
+            }else {
+                document.location.href = '/pair-headset';
+            }
 
         }).catch(error => {
             console.log(error);
@@ -106,7 +109,11 @@ class AuthenticatePage extends Page{
     fbLoginCallback(authResponse){
         bcUser.loginFacebook(authResponse.userID, authResponse.accessToken, true).then(data => {
             console.log('FB logged in', data);
-            // document.location.href = $('#signin-button').attr('href');
+            if(data && data.newUser === "false"){
+                document.location.href = '/';
+            }else {
+                document.location.href = '/pair-headset';
+            }
 
         }).catch(error => {
             console.log(error);
