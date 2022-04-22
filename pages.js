@@ -91,8 +91,8 @@ class AuthenticatePage extends Page{
     emailLoginCallback(exists){
         document.location.href = exists ? '/login' : '/pick-username';
     }
-    googleLoginCallback(responsePayload, credential){
-        bcUser.loginGoogle(responsePayload.sub, credential, true).then(data => {
+    googleLoginCallback(access_token, id_token){
+        bcUser.loginGoogle(id_token, access_token, true).then(data => {
             console.log('G logged in', data);
 
             // document.location.href = $('#signin-button').attr('href');
