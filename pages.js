@@ -618,24 +618,32 @@ class GoogleLogin{
     initialize(settings){
         this.settings = settings;
         console.log('initializing google');
-        $.getScript('https://apis.google.com/js/platform.js', ()=> {
-            gapi.load('auth2', () => {
-                console.log('google script loaded');
-                gapi.auth2.authorize({
-                    client_id: "930957171392-4471lakpcubvjidtho0vsoqqhggonl1k.apps.googleusercontent.com",
-                    scope: 'email profile openid',
-                    response_type: 'code'
-                },this.handleCredentialResponse.bind(this));
-            });
-            $('#google-login').click(event => {
-                google.accounts.id.prompt(notification => {// display the One Tap dialog
-                    console.log('google popup notification', notification);
-                    if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                        console.log('Can`t display google login popup');
-                    }
+        $('#google-login').click(event => {
+            $.getScript('https://apis.google.com/js/platform.js', ()=> {
+                gapi.load('auth2', () => {
+                    console.log('google script loaded');
+                    gapi.auth2.authorize({
+                        client_id: "930957171392-4471lakpcubvjidtho0vsoqqhggonl1k.apps.googleusercontent.com",
+                        scope: 'email profile openid',
+                        prompt: 'select_account',
+                        response_type: 'id_token,code'
+                    },response =>{
+                        this.settings.loginCallback(response.code, response.credential);
+                    });
                 });
+
+            });
+
+
+
+            google.accounts.id.prompt(notification => {// display the One Tap dialog
+                console.log('google popup notification', notification);
+                if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                    console.log('Can`t display google login popup');
+                }
             });
         });
+
 
     }
     handleCredentialResponse(response){
@@ -652,7 +660,7 @@ class GoogleLogin{
         console.log("Image URL: " + responsePayload.picture);
         console.log("Email: " + responsePayload.email);
 
-        this.settings.loginCallback(responsePayload, response.credential);
+
     }
     decodeJwtResponse(token) {
         var base64Url = token.split('.')[1];
