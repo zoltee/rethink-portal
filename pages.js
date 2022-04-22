@@ -91,7 +91,7 @@ class AuthenticatePage extends Page{
     emailLoginCallback(exists){
         document.location.href = exists ? '/login' : '/pick-username';
     }
-    googleLoginCallback(access_token, id_token){
+    googleLoginCallback(id_token, access_token){
         bcUser.loginGoogle(id_token, access_token, true).then(data => {
             console.log('G logged in', data);
 
@@ -634,7 +634,7 @@ class GoogleLogin{
                             return;
                         }
 
-                        this.settings.loginCallback(response.access_token, response.id_token);
+                        this.settings.loginCallback(response.id_token, response.code);
                     });
                 });
 
@@ -652,7 +652,7 @@ class GoogleLogin{
 
 
     }
-    handleCredentialResponse(response){
+    /*handleCredentialResponse(response){
         console.log('google callback', arguments);
         console.log("Encoded JWT ID token: " + response.credential);
         // decodeJwtResponse() is a custom function defined by you
@@ -676,7 +676,7 @@ class GoogleLogin{
         }).join(''));
 
         return JSON.parse(jsonPayload);
-    };
+    };*/
 }
 
 class FacebookLogin{
