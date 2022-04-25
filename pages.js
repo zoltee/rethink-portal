@@ -160,7 +160,7 @@ class PickUsernamePage extends Page{
     $usernameInput;
     async initialize(){
         const usernameInput = $('#username');
-        this.$usernameInput.val(bcUser.user.playerName ?? '');
+        this.$usernameInput.val(bcUser.userData.playerName ?? '');
         $('#next-button').click(this.handleNext.bind(this));
         this.$passwordInput.on('keydown', (event => {
             if (event.which === 13){
@@ -211,7 +211,7 @@ class SelectPasswordPage extends Page{
         try{
             const data = await bcUser.loginUser(email, password, true);
             if(data && data.newUser === "false"){
-                if (!bcUser.user.emailVerified){
+                if (!bcUser.userData.emailVerified){
                     document.location.href = '/confirm-your-email';
                 }
                 document.location.href = '/';
@@ -421,7 +421,7 @@ class ProfilePage extends Page{
         });
 
 
-        const username = await bcUser.user.playerName;
+        const username = await bcUser.userData.playerName;
         $('#username').val(username);
         const firstname = await bcUser.readAttribute('firstname');
         $('#firstname').val(firstname);
@@ -450,14 +450,14 @@ class AvatarPage extends Page{
         const sampleAvatars = $swiperWrapper.find('.swiper-slide .sample-avatar');
         //const template = demoSlides[0].outerHTML;
         // const urlMatch = new RegExp('src=".*?"','gm');
-        const avatarURLs = [];
+        // const avatarURLs = [];
         sampleAvatars.each((index, element) => {
-            avatarURLs.push(element.src);
-            if (this.bcUser.user.pictureUrl === element.src){
+            // avatarURLs.push(element.src);
+            if (this.bcUser.userData.pictureUrl === element.src){
                 element.classList.add("selected");
             }
         });
-        $('.swiper-wrapper').on('click', '.swiper-slide',event => {
+        $swiperWrapper.on('click', '.swiper-slide',event => {
             event.preventDefault();
            const $avatarWrapper = $(event.target);
             this.setAvatarURL($avatarWrapper.find('.sample-avatar').attr('src'));
@@ -541,7 +541,7 @@ class AvatarCustomizer{
             }
         }
         let eventData;
-        if (event.data[0] == '{'){
+        if (event.data[0] === '{'){
             eventData = parse(event.data);
             if (eventData?.source !== 'readyplayerme') {
                 return;

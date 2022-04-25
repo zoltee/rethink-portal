@@ -11,7 +11,7 @@ class BCUser{
 		const jsonUserData = Utils.readLS("BC-User");
 		if (jsonUserData && jsonUserData !== 'undefined') {
 			try {
-				this.user = JSON.parse(jsonUserData);
+				this.setUser(JSON.parse(jsonUserData), false);
 			}catch (e) {
 				console.log('can`t parse userData from local storage', jsonUserData);
 			}
@@ -29,17 +29,21 @@ class BCUser{
 		console.log('not logged in');
 		return null;
 	}
-	setUser(data) {
+	setUser(data, saveLocal = true) {
 		console.log('setting user data',data);
 		if (data) {
-			Utils.writeLS("BC-User", JSON.stringify(data));
+			if (saveLocal){
+				Utils.writeLS("BC-User", JSON.stringify(data));
+			}
 			this.user = data;
 			if (this.user.pictureUrl) {
 				$(document).trigger('avatarURL', this.user.pictureUrl);
 			}
 		}
 	}
-
+	get userData(){
+		return this.user;
+	}
 	async readUser() {
 		console.log('reading user data');
 		if (this.user) {
