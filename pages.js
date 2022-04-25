@@ -40,11 +40,10 @@ $(async() =>{
 });
 
 class Page{
-    async initialize(){
-        console.log('generic init', this);
+    constructor() {
         $(document).on('avatarURL',(event, url, customized = false)=>{
             this.setProfileURL(url, customized);
-        })
+        });
     }
     setProfileURL(url, customized = false){
         if (customized) {
