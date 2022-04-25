@@ -557,8 +557,18 @@ class AvatarCustomizer{
             if (eventData?.source !== 'readyplayerme') {
                 return;
             }
-        }else if(event.data.substring(0,4) === 'http'){
-            this.render(event.data);
+        }
+        // Get avatar GLB URL
+        if(event.data.substring(0,4) === 'http' || eventData.eventName === 'v1.avatar.exported'){
+            const glbURL = eventData.data ?? event.data;
+            console.log(`Avatar URL: ${eventData.data}`);
+            if (this.glbCallback){
+                this.glbCallback(glbURL)
+            }
+            const avatarURL = await this.render(glbURL);
+            if (this.imageCallback){
+                this.imageCallback(avatarURL, true)
+            }
             return;
         }
 
@@ -573,20 +583,6 @@ class AvatarCustomizer{
                 }),
                 '*'
             );
-        }
-
-        // Get avatar GLB URL
-        if (eventData.eventName === 'v1.avatar.exported') {
-            const glbURL = eventData.data;
-            console.log(`Avatar URL: ${eventData.data}`);
-            if (this.glbCallback){
-                this.glbCallback(glbURL)
-            }
-            const avatarURL = await this.render(glbURL);
-            if (this.imageCallback){
-                this.imageCallback(avatarURL, true)
-            }
-            return;
         }
 
         // Get user id
