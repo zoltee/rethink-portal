@@ -456,7 +456,7 @@ class AvatarPage extends Page{
         sampleAvatars.each((index, element) => {
             // avatarURLs.push(element.src);
             if (bcUser.userData.pictureUrl === element.src){
-                element.classList.add("selected");
+                $(element).addClass("selected");
             }
         });
         $swiperWrapper.on('click', '.swiper-slide',event => {
