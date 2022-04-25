@@ -37,7 +37,9 @@ class BCUser{
 			}
 			this.user = data;
 			if (this.user.pictureUrl) {
-				$(document).trigger('avatarURL', this.user.pictureUrl);
+				this.readAttribute('isCustomizedAvatar').then(customized=> {
+					$(document).trigger('avatarURL', [this.user.pictureUrl, customized]);
+				});
 			}
 		}
 	}
@@ -242,10 +244,12 @@ class BCUser{
 		});
 	}
 	async setAvatar(avatarURL, customized = false){
+		await this.updateAttributes({isCustomizedAvatar: customized});
 		return new Promise((resolve, reject) => {
 			this.brainCloudClient.playerState.updateUserPictureUrl(avatarURL, async result => {
 				if(await this.interpretStatus(result)){
 					console.log('set avatar result', result);
+					this.user.pictureUrl = result.data.playerPictureUrl;
 					$(document).trigger('avatarURL', [avatarURL, customized]);
 					resolve(result.data.playerPictureUrl);
 				}else{

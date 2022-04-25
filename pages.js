@@ -42,6 +42,7 @@ $(async() =>{
 class Page{
     constructor() {
         $(document).on('avatarURL',(event, url, customized = false)=>{
+           console.log('Applying profile URL', url);
             this.setProfileURL(url, customized);
         });
     }
@@ -436,6 +437,7 @@ class ProfilePage extends Page{
 
 }
 class AvatarPage extends Page{
+    swiper;
     async initialize(){
         await Utils.checkLoggedIn();
         const customizer = new AvatarCustomizer();
@@ -445,38 +447,10 @@ class AvatarPage extends Page{
         }).then(()=>{
             console.log('Customizer loaded');
         });
-        this.loadAvatars();
+        this.initSwiper();
     }
-    loadAvatars(){
-        const $swiperWrapper = $('.swiper-wrapper');
-        const sampleAvatars = $swiperWrapper.find('.swiper-slide .sample-avatar');
-        //const template = demoSlides[0].outerHTML;
-        // const urlMatch = new RegExp('src=".*?"','gm');
-        // const avatarURLs = [];
-        let selectedIndex = 0;
-
-        sampleAvatars.each((index, element) => {
-            // avatarURLs.push(element.src);
-            if (bcUser.userData.pictureUrl === element.src){
-                selectedIndex = index;
-                $(element).parent('.swiper-slide').addClass("selected");
-            }
-        });
-        $swiperWrapper.on('click', '.swiper-slide',event => {
-            event.preventDefault();
-           const $avatarWrapper = $(event.currentTarget);
-            this.setAvatarURL($avatarWrapper.find('.sample-avatar').attr('src'), false);
-            this.setGLB('');
-        });
-        /*const avatars = [
-            'https://media.sketchfab.com/models/7a8fa15955084fa3bf7103ed1818c584/thumbnails/c092fb3800de440995982870feda61d9/08e1cec1ba8f49ffa44e176ec4fcb368.jpeg',
-            'https://cdna.artstation.com/p/assets/images/images/039/558/340/large/wolf3d-andra.jpg?1626256412',
-            'https://media.sketchfab.com/models/a9c1f5d2cd7c4ca3bb46272998d3e451/thumbnails/77ef8c5191cb48eb8e1def561dbe72b1/930dc29f6203489fbe51524b24c7cba0.jpeg',
-            'https://www.coinkolik.com/wp-content/uploads/2021/12/sanal-platformlar-icin-avatar-projesi-ready-player-me-13-milyon-dolar-yatirim-aldi.jpeg',
-            'https://roadtovrlive-5ea0.kxcdn.com/wp-content/uploads/2021/01/readyplayerme-avatar-liv-vr-streaming-238x178.jpg',
-            'https://media.sketchfab.com/models/f2791ae3c40c4920a158f96c7dc46f53/thumbnails/1ff36819e8b64a8f831f2c8dbfe6094c/53721a817c5e435b880e0298dc6ea8ce.jpeg'
-        ];*/
-        const swiper = new Swiper('.swiper', {
+    initSwiper(){
+        this.swiper = new Swiper('.swiper', {
             loop: true,
             slidesPerView: 3,
             spaceBetween: 0,
@@ -495,12 +469,30 @@ class AvatarPage extends Page{
             },
         });
 
-        swiper.slideToLoop(Math.max(selectedIndex - 1, 0), 500, false);
-        /*for (const avatarURL of avatars) {
-            swiper.appendSlide(template.replace(urlMatch, `src="${avaratURL}"`));
-        }*/
+        const $swiperWrapper = $('.swiper-wrapper');
+        const selectedIndex = this.markSelectedAvatar($swiperWrapper);
+        this.swiper.slideToLoop(Math.max(selectedIndex - 1, 0), 500, false);
+
+        $swiperWrapper.on('click', '.swiper-slide',event => {
+            event.preventDefault();
+            const $avatarWrapper = $(event.currentTarget);
+            this.setAvatarURL($avatarWrapper.find('.sample-avatar').attr('src'), false);
+            this.setGLB('');
+        });
 
     }
+    markSelectedAvatar($swiperWrapper){
+        let selectedIndex = 0;
+        $swiperWrapper.find('.swiper-slide .sample-avatar').each((index, element) => {
+            // avatarURLs.push(element.src);
+            if (bcUser.userData.pictureUrl === element.src){
+                selectedIndex = index;
+                $(element).parent('.swiper-slide').addClass("selected");
+            }
+        });
+        return selectedIndex;
+    }
+
     setGLB(glbURL){
         console.log(`Avatar GLB URL: ${glbURL}`);
         bcUser.updateAttributes({avatarGLB: glbURL}).then(r => console.log('GLB saved'));
@@ -510,12 +502,17 @@ class AvatarPage extends Page{
         // $('.applied-avatar-bg').css('background-image', customURL);
         // this.setProfileURL(URL, customized);
         $('#avatar-customizer').remove();
+        $('.swiper-wrapper .swiper-slide.selected').removeClass('selected');
         bcUser.setAvatar(URL, customized).then(url => {
             Utils.showSuccess('Avatar updated');
+        }).then(()=>{
+            if (customized){
+                $('.custom-avatar-container').addClass('selected');
+            }else{
+                this.markSelectedAvatar($('.swiper-wrapper'));
+            }
         });
     }
-
-
 }
 
 class AvatarCustomizer{
