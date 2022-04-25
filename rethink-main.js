@@ -30,7 +30,7 @@ class BCUser{
 		return null;
 	}
 	setUser(data, saveLocal = true) {
-		console.log('setting user data',data);
+		console.log('applying user data',data);
 		if (data) {
 			if (saveLocal){
 				Utils.writeLS("BC-User", JSON.stringify(data));
