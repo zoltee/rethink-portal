@@ -453,7 +453,7 @@ class AvatarPage extends Page{
         // const avatarURLs = [];
         sampleAvatars.each((index, element) => {
             // avatarURLs.push(element.src);
-            if (this.bcUser.userData.pictureUrl === element.src){
+            if (bcUser.userData.pictureUrl === element.src){
                 element.classList.add("selected");
             }
         });
