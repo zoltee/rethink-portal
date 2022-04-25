@@ -491,7 +491,7 @@ class AvatarPage extends Page{
 
     }
     setGLB(glbURL){
-        console.log(`Avatar URL: ${glbURL}`);
+        console.log(`Avatar GLB URL: ${glbURL}`);
         bcUser.updateAttributes({avatarGLB: glbURL}).then(r => console.log('GLB saved'));
     }
     setAvatarURL(customURL){
