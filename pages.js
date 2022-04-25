@@ -47,10 +47,9 @@ class Page{
     }
     setProfileURL(url, customized = false){
         if (customized) {
-            $('.applied-avatar:not(.custom-avatar)').attr('src', url);
-        }else{
             $('.applied-avatar.custom-avatar').attr('src', url);
         }
+        $('.applied-avatar:not(.custom-avatar)').attr('src', url);
         $('.applied-avatar-bg').css('background-image', `url('${url}')`);
     }
 }
