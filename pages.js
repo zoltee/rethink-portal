@@ -459,7 +459,7 @@ class AvatarPage extends Page{
         });
         $swiperWrapper.on('click', '.swiper-slide',event => {
             event.preventDefault();
-           const $avatarWrapper = $(event.target);
+           const $avatarWrapper = $(event.currentTarget);
             this.setAvatarURL($avatarWrapper.find('.sample-avatar').attr('src'));
             this.setGLB('');
         });
