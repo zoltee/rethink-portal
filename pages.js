@@ -597,16 +597,20 @@ class AvatarCustomizer{
                 scene: "halfbody-portrait-v1-transparent", //halfbody-portrait-v1, fullbody-portrait-v1 ,halfbody-portrait-v1-transparent , fullbody-portrait-v1-transparent , fullbody-posture-v1-transparent
                 // armature: "ArmatureTargetMale", // ArmatureTargetFemale
             }
-        return $.ajax({
-            url:'https://render.readyplayer.me/render',
-            method: "POST",
-            contentType:'application/json',
-            data: JSON.stringify(params),
-            dataType: 'json'
-        }).done(data=>{
-            console.log(data);
-            return data.renders[0];
-        });
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url:'https://render.readyplayer.me/render',
+                method: "POST",
+                contentType:'application/json',
+                data: JSON.stringify(params),
+                dataType: 'json'
+            }).done(data=>{
+                console.log(data);
+                resolve(data.renders[0]);
+            }).fail(error => {
+              reject(error);
+            });
+        })
     }
 }
 
