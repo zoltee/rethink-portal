@@ -241,11 +241,12 @@ class BCUser{
 			return await this.interpretStatus(result) ? result.data?.playerName : false;
 		});
 	}
-	async setAvatar(avatarURL){
+	async setAvatar(avatarURL, customized = false){
 		return new Promise((resolve, reject) => {
 			this.brainCloudClient.playerState.updateUserPictureUrl(avatarURL, async result => {
 				if(await this.interpretStatus(result)){
-					$(document).trigger('avatarURL', avatarURL);
+					console.log('set avatar result', result);
+					$(document).trigger('avatarURL', [avatarURL, customized]);
 					resolve(result.data.playerPictureUrl);
 				}else{
 					reject(result.status+' : '+ result.status_message);

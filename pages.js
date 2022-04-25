@@ -42,12 +42,14 @@ $(async() =>{
 class Page{
     async initialize(){
         console.log('generic init', this);
-        $(document).on('avatarURL',(event, url)=>{
-            this.setProfileURL(url);
+        $(document).on('avatarURL',(event, url, customized = false)=>{
+            this.setProfileURL(url, customized);
         })
     }
-    setProfileURL(url){
-        $('.applied-avatar').attr('src', url);
+    setProfileURL(url, customized = false){
+        if (customized) {
+            $('.applied-avatar').attr('src', url);
+        }
         $('.applied-avatar-bg').css('background-image', url);
     }
 }
@@ -159,10 +161,10 @@ class LoginPage extends Page{
 class PickUsernamePage extends Page{
     $usernameInput;
     async initialize(){
-        const usernameInput = $('#username');
+        this.$usernameInput = $('#username');
         this.$usernameInput.val(bcUser.userData.playerName ?? '');
         $('#next-button').click(this.handleNext.bind(this));
-        this.$passwordInput.on('keydown', (event => {
+        this.$usernameInput.on('keydown', (event => {
             if (event.which === 13){
                 this.handleNext(event);
             }
@@ -460,7 +462,7 @@ class AvatarPage extends Page{
         $swiperWrapper.on('click', '.swiper-slide',event => {
             event.preventDefault();
            const $avatarWrapper = $(event.currentTarget);
-            this.setAvatarURL($avatarWrapper.find('.sample-avatar').attr('src'));
+            this.setAvatarURL($avatarWrapper.find('.sample-avatar').attr('src'), false);
             this.setGLB('');
         });
         /*const avatars = [
@@ -494,12 +496,12 @@ class AvatarPage extends Page{
         console.log(`Avatar GLB URL: ${glbURL}`);
         bcUser.updateAttributes({avatarGLB: glbURL}).then(r => console.log('GLB saved'));
     }
-    setAvatarURL(customURL){
+    setAvatarURL(URL, customized = false){
         // $('.applied-avatar').attr('src', customURL);
         // $('.applied-avatar-bg').css('background-image', customURL);
-        this.setProfileURL(customURL);
+        // this.setProfileURL(URL, customized);
         $('#avatar-customizer').remove();
-        bcUser.setAvatar(customURL).then(url => {
+        bcUser.setAvatar(URL, customized).then(url => {
             Utils.showSuccess('Avatar updated');
         });
     }
@@ -573,7 +575,7 @@ class AvatarCustomizer{
             }
             const avatarURL = await this.render(glbURL);
             if (this.imageCallback){
-                this.imageCallback(avatarURL)
+                this.imageCallback(avatarURL, true)
             }
             return;
         }
