@@ -127,8 +127,9 @@ class BCUser{
 	}
 
 	async updateAttributes(attributes){
-		console.log('update attributes');
+		console.log('update attributes', attributes);
 		const updatedAttributes = {...this.BCUserAttributes ?? {}, ...attributes};
+		console.log('saving attributes', updatedAttributes);
 		return new Promise((resolve, reject) => {
 			this.brainCloudClient.playerState.updateAttributes(updatedAttributes, false, async result => {
 				if(await this.interpretStatus(result)){
