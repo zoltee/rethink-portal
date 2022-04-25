@@ -561,7 +561,7 @@ class AvatarCustomizer{
         // Get avatar GLB URL
         if(event.data.substring(0,4) === 'http' || eventData.eventName === 'v1.avatar.exported'){
             const glbURL = eventData?.data ?? event.data;
-            console.log(`Avatar URL: ${eventData.data}`);
+            console.log(`Avatar URL: ${glbURL}`);
             if (this.glbCallback){
                 this.glbCallback(glbURL)
             }
