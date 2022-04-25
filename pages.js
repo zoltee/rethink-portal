@@ -453,9 +453,12 @@ class AvatarPage extends Page{
         //const template = demoSlides[0].outerHTML;
         // const urlMatch = new RegExp('src=".*?"','gm');
         // const avatarURLs = [];
+        let selectedIndex = 0;
+
         sampleAvatars.each((index, element) => {
             // avatarURLs.push(element.src);
             if (bcUser.userData.pictureUrl === element.src){
+                selectedIndex = index;
                 $(element).parent('.swiper-slide').addClass("selected");
             }
         });
@@ -477,9 +480,14 @@ class AvatarPage extends Page{
             loop: true,
             slidesPerView: 3,
             spaceBetween: 0,
+            mousewheel: true,
             pagination: {
                 el: '.swiper-pagination',
                 clickable: true
+            },
+            keyboard: {
+                enabled: true,
+                onlyInViewport: false,
             },
             navigation: {
                 nextEl: '.swiper-button-next',
@@ -487,6 +495,7 @@ class AvatarPage extends Page{
             },
         });
 
+        swiper.slideTo(selectedIndex, 500, false);
         /*for (const avaratURL of avatars) {
             swiper.appendSlide(template.replace(urlMatch, `src="${avaratURL}"`));
         }*/
