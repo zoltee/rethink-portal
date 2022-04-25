@@ -495,7 +495,7 @@ class AvatarPage extends Page{
             },
         });
 
-        swiper.slideTo(selectedIndex, 500, false);
+        swiper.slideToLoop(selectedIndex, 500, false);
         /*for (const avaratURL of avatars) {
             swiper.appendSlide(template.replace(urlMatch, `src="${avaratURL}"`));
         }*/
