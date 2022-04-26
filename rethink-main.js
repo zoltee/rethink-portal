@@ -43,7 +43,7 @@ class BCUser{
 			this.user = data;
 			if (this.user.pictureUrl) {
 				this.readAttribute('avatarGLB').then(glbURL=> {
-					$(document).trigger('avatarURL', [this.user.pictureUrl, glbURL?.length > 0 ]);
+					Utils.applyProfileURL(this.user.pictureUrl, glbURL?.length > 0);
 				});
 			}
 			/*this.refreshIdentities().then(identities=>{
@@ -293,7 +293,7 @@ class BCUser{
 				if(await this.interpretStatus(result)){
 					console.log('set avatar result', result);
 					this.user.pictureUrl = result.data.playerPictureUrl;
-					$(document).trigger('avatarURL', [avatarURL, customized]);
+					Utils.applyProfileURL(avatarURL, customized);
 					resolve(result.data.playerPictureUrl);
 				}else{
 					reject(result.status+' : '+ result.status_message);
@@ -368,6 +368,16 @@ class Utils{
 	static redirectToLogin(){
 		document.location.href = '/authenticate';
 	}
+
+	static applyProfileURL(url, customized = false){
+		if (customized) {
+			$('.applied-avatar.custom-avatar').attr('src', url);
+		}
+		$('.applied-avatar:not(.custom-avatar)').attr('src', url);
+		$('.applied-avatar-bg').css('background-image', `url('${url}')`);
+	}
+
+
 	static async checkLoggedIn(){
 		console.log('checking login status');
 		const isLoggedIn = bcUser.isUserLoggedIn();

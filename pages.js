@@ -46,13 +46,6 @@ class Page{
             this.setProfileURL(url, customized);
         });
     }
-    setProfileURL(url, customized = false){
-        if (customized) {
-            $('.applied-avatar.custom-avatar').attr('src', url);
-        }
-        $('.applied-avatar:not(.custom-avatar)').attr('src', url);
-        $('.applied-avatar-bg').css('background-image', `url('${url}')`);
-    }
 }
 
 class HomePage extends Page{
