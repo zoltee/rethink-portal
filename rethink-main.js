@@ -4,6 +4,8 @@ class BCUser{
 	BCUserAttributes;
 	static LSPrefix = 'Rethink.';
 	retriedReconnect = false;
+	refreshedAttributes = false;
+	refreshedUser = false;
 	get userData(){
 		return this.user;
 	}
@@ -63,6 +65,7 @@ class BCUser{
 			this.brainCloudClient.reconnect(async result => {
 				this.retriedReconnect = true;
 				if(await this.interpretStatus(result)){
+					this.refreshedUser = true;
 					this.setUser(result.data);
 					resolve(result.data);
 				}else {
@@ -83,6 +86,7 @@ class BCUser{
 				async result => {
 					if(await this.interpretStatus(result)){
 						Utils.writeLS('identityType', 'EmailPassword');
+						this.refreshedUser = true;
 						this.setUser(result.data);
 						console.log("logged in");
 						resolve(this.user);
@@ -101,6 +105,7 @@ class BCUser{
 				async result => {
 					if(await this.interpretStatus(result)){
 						Utils.writeLS('identityType', 'Facebook');
+						this.refreshedUser = true;
 						this.setUser(result.data);
 						console.log("facebook logged in");
 						resolve(this.user);
@@ -120,6 +125,7 @@ class BCUser{
 				async result => {
 					if(await this.interpretStatus(result)){
 						Utils.writeLS('identityType', 'Google');
+						this.refreshedUser = true;
 						this.setUser(result.data);
 						console.log("google logged in");
 						resolve(this.user);
@@ -156,9 +162,11 @@ class BCUser{
 		const lSAttributes = Utils.readJSONLS('attributes');
 		if (lSAttributes && lSAttributes[attribute]){
 			// no wait
-			this.loadAttributes().then(attributes =>{
-				console.log('refreshed attributes', attributes);
-			});
+			if (!this.refreshedAttributes) {
+				this.loadAttributes().then(attributes => {
+					console.log('refreshed attributes', attributes);
+				});
+			}
 			return lSAttributes[attribute];
 		}
 		const attributes = await this.loadAttributes();
@@ -170,6 +178,7 @@ class BCUser{
 		return new Promise((resolve, reject) => {
 			this.brainCloudClient.playerState.getAttributes(async result =>{
 				if(await this.interpretStatus(result)){
+					this.refreshedAttributes = true;
 					this.BCUserAttributes = result.data.attributes;
 					Utils.writeJSONLS('attributes', this.BCUserAttributes);
 					resolve(this.BCUserAttributes);
@@ -211,7 +220,7 @@ class BCUser{
 						await this.reconnectUser();
 						return true;
 					} catch (e) {
-						if (showError) this.showError('Error while trying to reconnect after session was lost');
+						if (showError) Utils.showError('Error while trying to reconnect after session was lost');
 						return false;
 					}
 				}
@@ -250,6 +259,7 @@ class BCUser{
 		return new Promise((resolve, reject) => {
 			this.brainCloudClient.playerState.readUserState(async result => {
 				if(await this.interpretStatus(result)){
+					this.refreshedUser = true;
 					this.setUser(result.data);
 					resolve(result.data);
 				} else {
