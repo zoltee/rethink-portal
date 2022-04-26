@@ -4,8 +4,8 @@ class BCUser{
 	BCUserAttributes;
 	static LSPrefix = 'Rethink.';
 	retriedReconnect = false;
-	refreshedAttributes = false;
-	refreshedUser = false;
+	refreshedAttributes = null;
+	refreshedUser = null;
 	get userData(){
 		return this.user;
 	}
@@ -162,7 +162,7 @@ class BCUser{
 		const lSAttributes = Utils.readJSONLS('attributes');
 		if (lSAttributes && lSAttributes[attribute]){
 			// no wait
-			if (!this.refreshedAttributes) {
+			if (this.refreshedAttributes === null) {
 				this.loadAttributes().then(attributes => {
 					console.log('refreshed attributes', attributes);
 				});
@@ -175,10 +175,15 @@ class BCUser{
 
 	async loadAttributes(){
 		console.log('loading attributes');
-		return new Promise((resolve, reject) => {
+		if (this.refreshedAttributes === false && this.attributePromise){
+			return this.attributePromise;
+		}
+		this.attributePromise = new Promise((resolve, reject) => {
+			this.refreshedAttributes = false;
 			this.brainCloudClient.playerState.getAttributes(async result =>{
 				if(await this.interpretStatus(result)){
 					this.refreshedAttributes = true;
+					this.attributePromise = null;
 					this.BCUserAttributes = result.data.attributes;
 					Utils.writeJSONLS('attributes', this.BCUserAttributes);
 					resolve(this.BCUserAttributes);
@@ -187,6 +192,7 @@ class BCUser{
 				}
 			});
 		});
+		return this.attributePromise;
 	}
 
 
