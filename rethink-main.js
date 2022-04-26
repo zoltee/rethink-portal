@@ -4,7 +4,12 @@ class BCUser{
 	BCUserAttributes;
 	static LSPrefix = 'Rethink.';
 	retriedReconnect = false;
-	identityType;
+	get userData(){
+		return this.user;
+	}
+	get identityType(){
+		return Utils.readLS('identityType');// EmailPassword / Facebook / Google
+	}
 	constructor(BCAppId, BCSecret, BCVersion) {
 		this.brainCloudClient = new BrainCloudWrapper("_mainWrapper");
 		this.brainCloudClient.initialize(BCAppId, BCSecret, BCVersion);
@@ -13,8 +18,7 @@ class BCUser{
 		if(bcUser){
 			this.setUser(bcUser, false);
 		}
-		const identities = this.getIdentities();
-
+		// const identities = this.getIdentities();
 	}
 	isUserLoggedIn() {
 		console.log('check user logged in');
@@ -44,9 +48,6 @@ class BCUser{
 				console.log('loaded identities');
 			});
 		}
-	}
-	get userData(){
-		return this.user;
 	}
 	async readUser() {
 		console.log('reading user data');
@@ -81,6 +82,7 @@ class BCUser{
 				create,
 				async result => {
 					if(await this.interpretStatus(result)){
+						Utils.writeLS('identityType', 'EmailPassword');
 						this.setUser(result.data);
 						console.log("logged in");
 						resolve(this.user);
@@ -89,7 +91,6 @@ class BCUser{
 					}
 				}
 			);
-			/*}*/
 		});
 	}
 	async loginFacebook(facebookId, token, forceCreate = false) {
@@ -99,6 +100,7 @@ class BCUser{
 			this.brainCloudClient.authenticateFacebook(facebookId, token, forceCreate,
 				async result => {
 					if(await this.interpretStatus(result)){
+						Utils.writeLS('identityType', 'Facebook');
 						this.setUser(result.data);
 						console.log("facebook logged in");
 						resolve(this.user);
@@ -107,7 +109,6 @@ class BCUser{
 					}
 				}
 			);
-			/*}*/
 		});
 	}
 
@@ -118,6 +119,7 @@ class BCUser{
 			this.brainCloudClient.authenticateGoogle(googleUserId, serverAuthCode, forceCreate,
 				async result => {
 					if(await this.interpretStatus(result)){
+						Utils.writeLS('identityType', 'Google');
 						this.setUser(result.data);
 						console.log("google logged in");
 						resolve(this.user);
@@ -126,7 +128,6 @@ class BCUser{
 					}
 				}
 			);
-			/*}*/
 		});
 	}
 
