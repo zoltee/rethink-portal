@@ -487,10 +487,12 @@ class AvatarPage extends Page{
             // avatarURLs.push(element.src);
             if (bcUser.userData.pictureUrl === element.src){
                 const $currentSlide = $(element);
-                selectedIndex = $currentSlide.data('swiper-slide-index');
-                console.log('found matching avatar',index);
+                selectedIndex = $currentSlide
+                    .parent('.swiper-slide')
+                    .addClass("selected")
+                    .data('swiper-slide-index');
+                console.log('found matching avatar',selectedIndex);
                 console.log(this.swiper);
-                $currentSlide.parent('.swiper-slide').addClass("selected");
             }
         });
         if (selectedIndex === null){
