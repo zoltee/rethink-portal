@@ -4,6 +4,7 @@ class BCUser{
 	BCUserAttributes;
 	static LSPrefix = 'Rethink.';
 	retriedReconnect = false;
+	identityType;
 	constructor(BCAppId, BCSecret, BCVersion) {
 		this.brainCloudClient = new BrainCloudWrapper("_mainWrapper");
 		this.brainCloudClient.initialize(BCAppId, BCSecret, BCVersion);
@@ -12,6 +13,8 @@ class BCUser{
 		if(bcUser){
 			this.setUser(bcUser, false);
 		}
+		const identities = this.getIdentities();
+
 	}
 	isUserLoggedIn() {
 		console.log('check user logged in');
@@ -37,6 +40,9 @@ class BCUser{
 					$(document).trigger('avatarURL', [this.user.pictureUrl, glbURL?.length > 0 ]);
 				});
 			}
+			this.refreshIdentities().then(identities=>{
+				console.log('loaded identities');
+			});
 		}
 	}
 	get userData(){
@@ -216,6 +222,27 @@ class BCUser{
 		}
 		return false;
 	}
+
+	async refreshIdentities(){
+		return new Promise((resolve, reject) => {
+			this.brainCloudClient.identity.getIdentities(async result => {
+				console.log('got identities', result);
+				if(await this.interpretStatus(result)){
+					Utils.writeJSONLS('identities', result.data.identities);
+					resolve(result.data.identities);
+				}else{
+					reject(result.status+' : '+ result.status_message);
+				}
+			});
+		});
+	}
+	getIdentities(){
+		this.refreshIdentities().then(identities => {
+			console.log('refresh identities from get');
+		});
+		return Utils.readJSONLS('identities');
+	}
+
 
 	async readUserData(){
 		console.log('read user data');
