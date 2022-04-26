@@ -487,6 +487,8 @@ class AvatarPage extends Page{
             // avatarURLs.push(element.src);
             if (bcUser.userData.pictureUrl === element.src){
                 selectedIndex = index;
+                console.log('found matching avatar',index);
+                console.log(this.swiper);
                 $(element).parent('.swiper-slide').addClass("selected");
             }
         });
