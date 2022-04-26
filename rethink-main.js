@@ -8,13 +8,9 @@ class BCUser{
 		this.brainCloudClient = new BrainCloudWrapper("_mainWrapper");
 		this.brainCloudClient.initialize(BCAppId, BCSecret, BCVersion);
 		this.brainCloudClient.brainCloudClient.enableLogging(true);
-		const jsonUserData = Utils.readLS("BC-User");
-		if (jsonUserData && jsonUserData !== 'undefined') {
-			try {
-				this.setUser(JSON.parse(jsonUserData), false);
-			}catch (e) {
-				console.log('can`t parse userData from local storage', jsonUserData);
-			}
+		const bcUser = Utils.readJSONLS("BC-User");
+		if(bcUser){
+			this.setUser(bcUser, false);
 		}
 	}
 	isUserLoggedIn() {
@@ -33,7 +29,7 @@ class BCUser{
 		console.log('applying user data',data);
 		if (data) {
 			if (saveLocal){
-				Utils.writeLS("BC-User", JSON.stringify(data));
+				Utils.writeJSONLS("BC-User", data);
 			}
 			this.user = data;
 			if (this.user.pictureUrl) {
@@ -150,6 +146,14 @@ class BCUser{
 			console.log(`found existing value for attribute ${attribute}:`, this.BCUserAttributes[attribute]);
 			return this.BCUserAttributes[attribute];
 		}
+		const lSAttributes = Utils.readJSONLS('attributes');
+		if (lSAttributes && lSAttributes[attribute]){
+			// no wait
+			this.loadAttributes().then(attributes =>{
+				console.log('refreshed attributes', attributes);
+			});
+			return lSAttributes[attribute];
+		}
 		const attributes = await this.loadAttributes();
 		return attributes[attribute];
 	}
@@ -160,6 +164,7 @@ class BCUser{
 			this.brainCloudClient.playerState.getAttributes(async result =>{
 				if(await this.interpretStatus(result)){
 					this.BCUserAttributes = result.data.attributes;
+					Utils.writeJSONLS('attributes', this.BCUserAttributes);
 					resolve(this.BCUserAttributes);
 				}else{
 					reject(result.status+' : '+ result.status_message);
@@ -306,6 +311,22 @@ class Utils{
 	static writeLS(field, value){
 		localStorage.setItem(BCUser.LSPrefix+field, value);
 	}
+	static readJSONLS(field){
+		const jsonData = Utils.readLS(field);
+		if (!jsonData || jsonData === 'undefined') {
+			return null;
+		}
+		try {
+			return JSON.parse(jsonData);
+		}catch (e) {
+			console.log('can`t parse userData from local storage', jsonUserData);
+			return null;
+		}
+	}
+	static writeJSONLS(field, value){
+		localStorage.setItem(BCUser.LSPrefix+field, JSON.stringify(value));
+	}
+
 	static redirectToLogin(){
 		document.location.href = '/authenticate';
 	}
