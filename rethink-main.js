@@ -46,9 +46,9 @@ class BCUser{
 					$(document).trigger('avatarURL', [this.user.pictureUrl, glbURL?.length > 0 ]);
 				});
 			}
-			this.refreshIdentities().then(identities=>{
+			/*this.refreshIdentities().then(identities=>{
 				console.log('loaded identities');
-			});
+			});*/
 		}
 	}
 	async readUser() {
