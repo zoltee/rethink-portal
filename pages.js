@@ -440,6 +440,7 @@ class AvatarPage extends Page{
     swiper;
     async initialize(){
         await Utils.checkLoggedIn();
+        this.initSwiper();
         const customizer = new AvatarCustomizer();
         customizer.initialize({
             glbCallback: this.setGLB.bind(this),
@@ -447,7 +448,6 @@ class AvatarPage extends Page{
         }).then(()=>{
             console.log('Customizer loaded');
         });
-        this.initSwiper();
     }
     initSwiper(){
         this.swiper = new Swiper('.swiper', {
@@ -471,18 +471,18 @@ class AvatarPage extends Page{
 
         const $swiperWrapper = $('.swiper-wrapper');
         const selectedIndex = this.markSelectedAvatar($swiperWrapper);
-        this.swiper.slideToLoop(Math.max(selectedIndex - 1, 0), 500, false);
-
+        if (selectedIndex !== null){
+            this.swiper.slideToLoop(Math.max(selectedIndex - 1, 0), 500, false);
+        }
         $swiperWrapper.on('click', '.swiper-slide',event => {
             event.preventDefault();
             const $avatarWrapper = $(event.currentTarget);
             this.setAvatarURL($avatarWrapper.find('.sample-avatar').attr('src'), false);
             this.setGLB('');
         });
-
     }
     markSelectedAvatar($swiperWrapper){
-        let selectedIndex = 0;
+        let selectedIndex = null;
         $swiperWrapper.find('.swiper-slide .sample-avatar').each((index, element) => {
             // avatarURLs.push(element.src);
             if (bcUser.userData.pictureUrl === element.src){
@@ -490,6 +490,12 @@ class AvatarPage extends Page{
                 $(element).parent('.swiper-slide').addClass("selected");
             }
         });
+        if (selectedIndex === null){
+            bcUser.readAttribute('avatarGLB').then(hasGLB =>{
+                $('.custom-avatar-container').toggleClass('selected',hasGLB);
+            });
+
+        }
         return selectedIndex;
     }
 
@@ -502,7 +508,7 @@ class AvatarPage extends Page{
         // $('.applied-avatar-bg').css('background-image', customURL);
         // this.setProfileURL(URL, customized);
         $('#avatar-customizer').remove();
-        $('.swiper-wrapper .swiper-slide.selected').removeClass('selected');
+        $('.swiper-wrapper .swiper-slide.selected, .custom-avatar-container.selected').removeClass('selected');
         bcUser.setAvatar(URL, customized).then(url => {
             Utils.showSuccess('Avatar updated');
         }).then(()=>{
