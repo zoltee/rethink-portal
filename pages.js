@@ -486,10 +486,11 @@ class AvatarPage extends Page{
         $swiperWrapper.find('.swiper-slide .sample-avatar').each((index, element) => {
             // avatarURLs.push(element.src);
             if (bcUser.userData.pictureUrl === element.src){
-                selectedIndex = index;
+                const $currentSlide = $(element);
+                selectedIndex = $currentSlide.data('swiper-slide-index');
                 console.log('found matching avatar',index);
                 console.log(this.swiper);
-                $(element).parent('.swiper-slide').addClass("selected");
+                $currentSlide.parent('.swiper-slide').addClass("selected");
             }
         });
         if (selectedIndex === null){
