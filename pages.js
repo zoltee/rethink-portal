@@ -250,10 +250,12 @@ class PairHeadsetPage extends Page{
     async initialize(){
         const codeInputs = $('input[name="headset-code[]"]');
         $("#next-button").click(async event => {
+            event.preventDefault();
             if (!(await this.validateHeadsetCode(codeInputs))) {
                 Utils.showError("Invalid headset code");
-                event.preventDefault();
+                return;
             }
+
         });
         codeInputs.keydown(event => {
             console.log(event);
