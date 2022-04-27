@@ -40,12 +40,6 @@ $(async() =>{
 });
 
 class Page{
-    constructor() {
-        $(document).on('avatarURL',(event, url, customized = false)=>{
-           console.log('Applying profile URL', url);
-            this.setProfileURL(url, customized);
-        });
-    }
 }
 
 class HomePage extends Page{
@@ -84,6 +78,13 @@ class AuthenticatePage extends Page{
             loginCallback:this.fbLoginCallback.bind(this)
         });
     }
+    getNextURL(){
+        if(!bcUser.userData.playerName){
+            document.location.href ='/pick-username';
+        }
+
+    }
+
     emailLoginCallback(exists){
         document.location.href = exists ? '/login' : '/pick-username';
     }
@@ -248,8 +249,8 @@ class ConfirmEmailPage extends Page{
 class PairHeadsetPage extends Page{
     async initialize(){
         const codeInputs = $('input[name="headset-code[]"]');
-        $("#next-button").click(event => {
-            if (!this.validateHeadsetCode(codeInputs)) {
+        $("#next-button").click(async event => {
+            if (!(await this.validateHeadsetCode(codeInputs))) {
                 Utils.showError("Invalid headset code");
                 event.preventDefault();
             }
@@ -292,7 +293,7 @@ class PairHeadsetPage extends Page{
         });
 
     }
-    validateHeadsetCode(codeInputs) {
+    async validateHeadsetCode(codeInputs) {
         let code = "";
         for (var i = 0; i < 4; i++) {
             if (codeInputs[i].value.length !== 1) {
@@ -301,7 +302,7 @@ class PairHeadsetPage extends Page{
             code += codeInputs[i].value;
         }
         Utils.writeLS("headset-code", code);
-        return true;
+        return await bcUser.verifyHeadsetCode(code) !== false;
     }
 }
 class ProfilePage extends Page{
@@ -636,9 +637,9 @@ class EmailPasswordLogin{
         }
         const email = this.$emailInput.val();
         Utils.writeLS('email', email);
-        sett
+
         bcUser.emailExists(email).then(exists => {
-            setting.loginCallback(exists);
+            this.settings.loginCallback(exists);
         }).catch(error => {
             Utils.showError(error);
         });

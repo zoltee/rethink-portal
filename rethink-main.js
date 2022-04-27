@@ -179,6 +179,7 @@ class BCUser{
 			return this.attributePromise;
 		}
 		this.attributePromise = new Promise((resolve, reject) => {
+			console.log('refreshing attributes');
 			this.refreshedAttributes = false;
 			this.brainCloudClient.playerState.getAttributes(async result =>{
 				if(await this.interpretStatus(result)){
@@ -280,6 +281,23 @@ class BCUser{
 			`https://portal.braincloudservers.com/webhook/13623/emailExists/fc93c494-1167-4dd4-89f5-b7c1d4dfe25b?emailAddress=${encodeURIComponent(email)}`);
 		return response?.existence ?? false;
 	}
+
+	async verifyHeadsetCode(code){
+		console.log(`verify headset code ${code}`);
+		const response = await $.get(
+			`https://portal.braincloudservers.com/webhook/13623/pairHeadset/b57e8ed4-b1fc-44f8-8793-743f9c28d4fc?=code${encodeURIComponent(email)}`);
+		const headsetData = response?.headsetData ?? false;
+		console.log('got headset data', headsetData);
+		if (headsetData){
+			return JSON.parse(headsetData);
+		}
+		return false;
+	}
+
+
+
+
+
 	async updateEmail(email, password){
 		console.log(`update email to ${email}`);
 		this.brainCloudClient.identity.changeEmailIdentity(this.user.emailAddress, password, email, true, async result => {
@@ -289,7 +307,13 @@ class BCUser{
 	async updateUsername(username){
 		console.log(`update username to ${username}`);
 		this.brainCloudClient.playerState.updateUserName(username, async result => {
-			return await this.interpretStatus(result) ? result.data?.playerName : false;
+			const updatedUserName = await this.interpretStatus(result) ? result.data?.playerName : false;
+			if (updatedUserName){
+				this.user.playerName = updatedUserName;
+				this.setUser(this.user, true);
+				Utils.writeLS('username', updatedUserName);
+			}
+			return updatedUserName;
 		});
 	}
 	async setAvatar(avatarURL, customized = false){
