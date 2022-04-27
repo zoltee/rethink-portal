@@ -663,6 +663,7 @@ class GoogleLogin{
                             Utils.showError(`Error logging in to google ${response.error}:${response.error_subtype}`);
                             return;
                         }
+                        console.log('google.user',GoogleAuth.currentUser.get());
                         this.settings.loginCallback(response.id_token, response.code);
                     });
                 });
