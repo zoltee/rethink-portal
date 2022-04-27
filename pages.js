@@ -248,6 +248,7 @@ class ConfirmEmailPage extends Page{
 }
 class PairHeadsetPage extends Page{
     async initialize(){
+        await Utils.checkLoggedIn();
         const codeInputs = $('input[name="headset-code[]"]');
         const $nextButton = $("#next-button");
         $nextButton.click(async event => {
