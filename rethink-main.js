@@ -285,7 +285,7 @@ class BCUser{
 	async verifyHeadsetCode(code){
 		console.log(`verify headset code ${code}`);
 		const response = await $.get(
-			`https://portal.braincloudservers.com/webhook/13623/pairHeadset/b57e8ed4-b1fc-44f8-8793-743f9c28d4fc?=code${encodeURIComponent(code)}`);
+			`https://portal.braincloudservers.com/webhook/13623/pairHeadset/b57e8ed4-b1fc-44f8-8793-743f9c28d4fc?code=${encodeURIComponent(code)}`);
 		const headsetData = response?.headsetData ?? false;
 		console.log('got headset data', headsetData);
 		if (headsetData){
