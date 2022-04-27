@@ -249,13 +249,14 @@ class ConfirmEmailPage extends Page{
 class PairHeadsetPage extends Page{
     async initialize(){
         const codeInputs = $('input[name="headset-code[]"]');
-        $("#next-button").click(async event => {
+        const $nextButton = $("#next-button");
+        $nextButton.click(async event => {
             event.preventDefault();
             if (!(await this.validateHeadsetCode(codeInputs))) {
                 Utils.showError("Invalid headset code");
                 return;
             }
-
+            document.location.href = $nextButton.attr('href');
         });
         codeInputs.keydown(event => {
             console.log(event);
@@ -548,16 +549,9 @@ class AvatarCustomizer{
     }
     async receiveMessage(event) {
         console.log('received event', event);
-        function parse(event) {
-            try {
-                return JSON.parse(event.data);
-            } catch (error) {
-                return null;
-            }
-        }
         let eventData;
         if (event.data[0] === '{'){
-            eventData = parse(event.data);
+            eventData = Utils.parseJSON(event.data);
             if (eventData?.source !== 'readyplayerme') {
                 return;
             }
@@ -668,50 +662,13 @@ class GoogleLogin{
                             Utils.showError(`Error logging in to google ${response.error}:${response.error_subtype}`);
                             return;
                         }
-
                         this.settings.loginCallback(response.id_token, response.code);
                     });
                 });
 
             });
-
-
-
-           /* google.accounts.id.prompt(notification => {// display the One Tap dialog
-                console.log('google popup notification', notification);
-                if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                    console.log('Can`t display google login popup');
-                }
-            });*/
         });
-
-
     }
-    /*handleCredentialResponse(response){
-        console.log('google callback', arguments);
-        console.log("Encoded JWT ID token: " + response.credential);
-        // decodeJwtResponse() is a custom function defined by you
-        // to decode the credential response.
-        const responsePayload = this.decodeJwtResponse(response.credential);
-        console.log("decoded response", responsePayload);
-        console.log("ID: " + responsePayload.sub);
-        console.log('Full Name: ' + responsePayload.name);
-        console.log('Given Name: ' + responsePayload.given_name);
-        console.log('Family Name: ' + responsePayload.family_name);
-        console.log("Image URL: " + responsePayload.picture);
-        console.log("Email: " + responsePayload.email);
-
-
-    }
-    decodeJwtResponse(token) {
-        var base64Url = token.split('.')[1];
-        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-
-        return JSON.parse(jsonPayload);
-    };*/
 }
 
 class FacebookLogin{
@@ -730,13 +687,6 @@ class FacebookLogin{
             });
 
         });
-        /*FB.login(function(response) {
-            if (response.status === 'connected') {
-                // Logged into your webpage and Facebook.
-            } else {
-                // The person is not logged into your webpage or we are unable to tell.
-            }
-        }, {scope: 'public_profile,email'});*/
     }
     statusChangeCallback(response) {  // Called with the results from FB.getLoginStatus().
         console.log('fb statusChangeCallback');

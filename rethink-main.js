@@ -285,18 +285,19 @@ class BCUser{
 	async verifyHeadsetCode(code){
 		console.log(`verify headset code ${code}`);
 		const response = await $.get(
-			`https://portal.braincloudservers.com/webhook/13623/pairHeadset/b57e8ed4-b1fc-44f8-8793-743f9c28d4fc?code=${encodeURIComponent(code)}`);
-		const headsetData = response?.headsetData ?? false;
-		console.log('got headset data', headsetData);
-		if (headsetData){
-			return JSON.parse(headsetData);
+			`https://portal.braincloudservers.com/webhook/13623/pairHeadset/b57e8ed4-b1fc-44f8-8793-743f9c28d4fc?code=${code}`);
+		const headsetRecord = response?.headsetRecord ?? false;
+		console.log('got headset data', headsetRecord);
+		if (headsetRecord){
+			delete headsetRecord.data.code;
+			// Delete pairing record, no need to wait
+			$.get(
+				`https://portal.braincloudservers.com/webhook/13623/deleteHeadsetCode/f2d0db03-1345-41f8-a588-4c078d6cba17?entityId=${headsetRecord.entityId}`);
+			await this.updateAttributes({headsetData: headsetRecord.data});
+			return Utils.parseJSON(headsetRecord.data);
 		}
 		return false;
 	}
-
-
-
-
 
 	async updateEmail(email, password){
 		console.log(`update email to ${email}`);
@@ -384,12 +385,7 @@ class Utils{
 		if (!jsonData || jsonData === 'undefined') {
 			return null;
 		}
-		try {
-			return JSON.parse(jsonData);
-		}catch (e) {
-			console.log('can`t parse userData from local storage', jsonUserData);
-			return null;
-		}
+		return Utils.parseJSON(jsonData);
 	}
 	static writeJSONLS(field, value){
 		localStorage.setItem(BCUser.LSPrefix+field, JSON.stringify(value));
@@ -407,7 +403,13 @@ class Utils{
 		$('.applied-avatar-bg').css('background-image', `url('${url}')`);
 	}
 
-
+	static parseJSON(string){
+		try {
+			return JSON.parse(string);
+		} catch (error) {
+			return null;
+		}
+	}
 	static async checkLoggedIn(){
 		console.log('checking login status');
 		const isLoggedIn = bcUser.isUserLoggedIn();
