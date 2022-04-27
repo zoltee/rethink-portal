@@ -294,7 +294,7 @@ class BCUser{
 			$.get(
 				`https://portal.braincloudservers.com/webhook/13623/deleteHeadsetCode/f2d0db03-1345-41f8-a588-4c078d6cba17?entityId=${headsetRecord.entityId}`);
 			await this.updateAttributes({headsetData: headsetRecord.data});
-			return Utils.parseJSON(headsetRecord.data);
+			return headsetRecord.data;
 		}
 		return false;
 	}
