@@ -652,7 +652,16 @@ class GoogleLogin{
             $.getScript('https://apis.google.com/js/platform.js', ()=> {
                 gapi.load('auth2', () => {
                     console.log('google script loaded');
-                    gapi.auth2.authorize({
+                    gapi.auth2.init({
+
+                        client_id: "930957171392-4471lakpcubvjidtho0vsoqqhggonl1k.apps.googleusercontent.com",
+                        scope: 'email profile openid',
+                    }).then(()=>{
+                        console.log(arguments);
+                    },error=>{
+                        Utils.showError('Error logging in',error)
+                    });
+                  /*  gapi.auth2.authorize({
                         client_id: "930957171392-4471lakpcubvjidtho0vsoqqhggonl1k.apps.googleusercontent.com",
                         scope: 'email profile openid',
                         prompt: 'select_account',
@@ -665,7 +674,7 @@ class GoogleLogin{
                         }
                         console.log('google.user',GoogleAuth.currentUser.get());
                         this.settings.loginCallback(response.id_token, response.code);
-                    });
+                    });*/
                 });
 
             });
