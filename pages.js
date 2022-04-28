@@ -88,8 +88,8 @@ class AuthenticatePage extends Page{
     emailLoginCallback(exists){
         document.location.href = exists ? '/login' : '/pick-username';
     }
-    googleLoginCallback(id_token, access_token){
-        bcUser.loginGoogle(id_token, access_token, true).then(data => {
+    googleLoginCallback(userId, access_token){
+        bcUser.loginGoogle(userId, access_token, true).then(data => {
             console.log('G logged in', data);
             if(data && data.newUser === "false"){
                 document.location.href = '/';
@@ -659,11 +659,10 @@ class GoogleLogin{
                         scope: 'email profile openid',
                     }).then(googleAuth=>{
                         console.log(googleAuth);
-                        console.log(this.auth2);
                         const GoogleUser = googleAuth.currentUser.get();
                         const userId = GoogleUser.getId();
-                        const token = googleAuth.AuthResponse;
-
+                        const token = GoogleUser.getAuthResponse().access_token;
+                        this.settings.loginCallback(userId, token);
                     },error=>{
                         Utils.showError('Error logging in',error)
                     });
