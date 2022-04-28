@@ -656,8 +656,9 @@ class GoogleLogin{
 
                         client_id: "930957171392-4471lakpcubvjidtho0vsoqqhggonl1k.apps.googleusercontent.com",
                         scope: 'email profile openid',
-                    }).then(()=>{
-                        console.log(arguments);
+                    }).then(googleAuth=>{
+                        console.log(googleAuth);
+
                     },error=>{
                         Utils.showError('Error logging in',error)
                     });
