@@ -117,11 +117,11 @@ class BCUser{
 		});
 	}
 
-	async loginGoogle(googleUserId, serverAuthCode, forceCreate = false) {
+	async loginGoogle(email, id_token, forceCreate = false) {
 		console.log('login user');
 		return new Promise((resolve, reject) => {
 			this.user = null;
-			this.brainCloudClient.authenticateGoogle(googleUserId, serverAuthCode, forceCreate,
+			this.brainCloudClient.authenticateGoogleOpenId(email, id_token, forceCreate,
 				async result => {
 					if(await this.interpretStatus(result)){
 						Utils.writeLS('identityType', 'Google');
