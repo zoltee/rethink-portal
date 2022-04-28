@@ -647,17 +647,22 @@ class GoogleLogin{
     settings
     initialize(settings){
         this.settings = settings;
+        this.auth2;
         console.log('initializing google');
         $('#google-login').click(event => {
             $.getScript('https://apis.google.com/js/platform.js', ()=> {
                 gapi.load('auth2', () => {
                     console.log('google script loaded');
-                    gapi.auth2.init({
+                    this.auth2 = gapi.auth2.init({
 
                         client_id: "930957171392-4471lakpcubvjidtho0vsoqqhggonl1k.apps.googleusercontent.com",
                         scope: 'email profile openid',
                     }).then(googleAuth=>{
                         console.log(googleAuth);
+                        console.log(this.auth2);
+                        const GoogleUser = googleAuth.currentUser.get();
+                        const userId = GoogleUser.getId();
+                        const token = googleAuth.AuthResponse;
 
                     },error=>{
                         Utils.showError('Error logging in',error)
