@@ -628,11 +628,11 @@ class EmailPasswordLogin{
     }
     handleNext(event){
         event.preventDefault();
-        if (!Utils.validateEmail(this.$emailInput)){
+        if (!Utils.validateEmail(this.settings.$emailInput)){
             Utils.showError('Invalid email address');
             return;
         }
-        const email = this.$emailInput.val();
+        const email = this.settings.$emailInput.val();
         Utils.writeLS('email', email);
 
         bcUser.emailExists(email).then(exists => {
