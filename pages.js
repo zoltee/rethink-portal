@@ -235,16 +235,17 @@ class ConfirmEmailPage extends Page{
         });
         $("#resend-code-button").click(event => {
             event.preventDefault();
-            bcUser.resendEmailVerification();
-            $.modal.close();
-            Utils.showSuccess('Email verification code resent');
+            bcUser.resendEmailVerification().then(res => {
+                $.modal.close();
+                Utils.showSuccess('Email verification code resent');
+            });
         });
-        $("#update-email-button").click(event => {
+        $("#change-email-button").click(event => {
             event.preventDefault();
-
-            bcUser.updateEmail(Utils.readLS('email'), $('password').val()).then(
-
-            );
+            bcUser.updateEmail($('#email').val(), $('#password').val()).then(res => {
+                $.modal.close();
+                Utils.showSuccess('Email changed');
+            });
         });
 
         this.checkStatus();
