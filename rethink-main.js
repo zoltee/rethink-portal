@@ -84,7 +84,11 @@ class BCUser{
 				password,
 				create,
 				async result => {
-					if(await this.interpretStatus(result, true)){
+					if (result.status === 202 && result.reason_code === 40214){ // need to verify email
+						Utils.writeLS('identityType', 'EmailPassword');
+						reject(Utils.EMAIL_VERIFY_MESSAGE);
+					}
+					if(await this.interpretStatus(result)){
 						Utils.writeLS('identityType', 'EmailPassword');
 						this.refreshedUser = true;
 						this.setUser(result.data);
@@ -227,8 +231,6 @@ class BCUser{
 			case 200: return true;
 			case 202:
 				if (result.reason_code === 40214){ //EMAIL_NOT_VALIDATED
-					if (showError) Utils.showError(`Your email is not verified yet. A verification link has been sent to your email address. 
-					Please click the link in the email to verify your email address`);
 					await this.resendEmailVerification();
 				}
 				return false;
@@ -358,6 +360,7 @@ class BCUser{
 	}
 }
 class Utils{
+	static EMAIL_VERIFY_MESSAGE = 'You need to verify your email. Please check your inbox for instructions.';
 	static showError(message) {
 		$("#error-message").show().text(message);
 	}

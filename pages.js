@@ -155,6 +155,9 @@ class LoginPage extends Page{
                 document.location.href = $('#signin-button').attr('href');
             })
             .catch(error => {
+                if (error === Utils.EMAIL_VERIFY_MESSAGE){
+                    document.location.href = $('#signin-button').attr('href');
+                }
                 console.log(error);
                 Utils.showError('The email/password you entered was incorrect');
                 $loading.hide();
