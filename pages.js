@@ -232,7 +232,11 @@ class SelectPasswordPage extends Page{
                 document.location.href = $('#next-button').attr('href');
             }
         }catch(error){
-                console.log(error);
+            if (error === Utils.EMAIL_VERIFY_MESSAGE){
+                document.location.href = $('#signin-button').attr('href');
+            }
+
+            console.log(error);
                 Utils.showError('The email/password you entered was incorrect');
                 $loading.hide();
                 $emailForm.show();
