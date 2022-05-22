@@ -84,7 +84,7 @@ class BCUser{
 				password,
 				create,
 				async result => {
-					if(await this.interpretStatus(result)){
+					if(await this.interpretStatus(result, true)){
 						Utils.writeLS('identityType', 'EmailPassword');
 						this.refreshedUser = true;
 						this.setUser(result.data);
@@ -103,7 +103,7 @@ class BCUser{
 			this.user = null;
 			this.brainCloudClient.authenticateFacebook(facebookId, token, forceCreate,
 				async result => {
-					if(await this.interpretStatus(result)){
+					if(await this.interpretStatus(result, true)){
 						Utils.writeLS('identityType', 'Facebook');
 						this.refreshedUser = true;
 						this.setUser(result.data);
@@ -123,7 +123,7 @@ class BCUser{
 			this.user = null;
 			this.brainCloudClient.authenticateGoogleOpenId(email, id_token, forceCreate,
 				async result => {
-					if(await this.interpretStatus(result)){
+					if(await this.interpretStatus(result, true)){
 						Utils.writeLS('identityType', 'Google');
 						this.refreshedUser = true;
 						this.setUser(result.data);
@@ -143,7 +143,7 @@ class BCUser{
 		console.log('saving attributes', updatedAttributes);
 		return new Promise((resolve, reject) => {
 			this.brainCloudClient.playerState.updateAttributes(updatedAttributes, false, async result => {
-				if(await this.interpretStatus(result)){
+				if(await this.interpretStatus(result, true)){
 					this.BCUserAttributes = updatedAttributes;
 					resolve();
 				}else{
@@ -225,8 +225,15 @@ class BCUser{
 		console.log(result);
 		switch (result.status){
 			case 200: return true;
+			case 202:
+				if (result.reason_code === 40214){ //EMAIL_NOT_VALIDATED
+					if (showError) Utils.showError(`Your email is not verified yet. A verification link has been sent to your email address. 
+					Please click the link in the email to verify your email address`);
+					return this.resendEmailVerification();
+				}
+				break;
 			case 403:
-				if (result.reason_code === 40426) {
+				if (result.reason_code === 40426) { //NULL_SESSION
 					if (this.retriedReconnect) {
 						document.location.href = '/authenticate';
 					}
@@ -309,14 +316,14 @@ class BCUser{
 	async updateEmail(email, password){
 		console.log(`update email to ${email}`);
 		this.brainCloudClient.identity.changeEmailIdentity(this.user.emailAddress, password, email, true, async result => {
-			return this.interpretStatus(result);
+			return this.interpretStatus(result, true);
 		});
 	}
 
 	async resetPassword(email){
 		console.log(`reset password for ${email}`);
 		this.brainCloudClient.resetEmailPassword(email, async result => {
-			return this.interpretStatus(result);
+			return this.interpretStatus(result, true);
 		});
 	}
 
@@ -324,7 +331,7 @@ class BCUser{
 	async updateUsername(username){
 		console.log(`update username to ${username}`);
 		this.brainCloudClient.playerState.updateUserName(username, async result => {
-			const updatedUserName = await this.interpretStatus(result) ? result.data?.playerName : false;
+			const updatedUserName = await this.interpretStatus(result, true) ? result.data?.playerName : false;
 			if (updatedUserName){
 				this.user.playerName = updatedUserName;
 				this.setUser(this.user, true);
@@ -337,7 +344,7 @@ class BCUser{
 //		await this.updateAttributes({isCustomizedAvatar: customized});
 		return new Promise((resolve, reject) => {
 			this.brainCloudClient.playerState.updateUserPictureUrl(avatarURL, async result => {
-				if(await this.interpretStatus(result)){
+				if(await this.interpretStatus(result, true)){
 					console.log('set avatar result', result);
 					this.user.pictureUrl = result.data.playerPictureUrl;
 					Utils.applyProfileURL(avatarURL, customized);
