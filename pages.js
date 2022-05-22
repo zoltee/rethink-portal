@@ -229,7 +229,7 @@ class SelectPasswordPage extends Page{
                 if (username){
                     await bcUser.updateUsername(username);
                 }
-                document.location.href = $('#next-button').attr('href');
+                document.location.href = '/confirm-your-email';
             }
         }catch(error){
             if (error === Utils.EMAIL_VERIFY_MESSAGE){
