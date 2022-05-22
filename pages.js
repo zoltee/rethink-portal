@@ -166,7 +166,7 @@ class PickUsernamePage extends Page{
     $usernameInput;
     async initialize(){
         this.$usernameInput = $('#username');
-        this.$usernameInput.val(bcUser.userData.playerName ?? '');
+        this.$usernameInput.val(bcUser.userData?.playerName ?? '');
         $('#next-button').click(this.handleNext.bind(this));
         this.$usernameInput.on('keydown', (event => {
             if (event.which === 13){

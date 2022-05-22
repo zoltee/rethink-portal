@@ -229,8 +229,9 @@ class BCUser{
 				if (result.reason_code === 40214){ //EMAIL_NOT_VALIDATED
 					if (showError) Utils.showError(`Your email is not verified yet. A verification link has been sent to your email address. 
 					Please click the link in the email to verify your email address`);
-					return this.resendEmailVerification();
+					await this.resendEmailVerification();
 				}
+				return false;
 				break;
 			case 403:
 				if (result.reason_code === 40426) { //NULL_SESSION
