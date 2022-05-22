@@ -87,6 +87,7 @@ class BCUser{
 					if (result.status === 202 && result.reason_code === 40214){ // need to verify email
 						Utils.writeLS('identityType', 'EmailPassword');
 						reject(Utils.EMAIL_VERIFY_MESSAGE);
+						return;
 					}
 					if(await this.interpretStatus(result)){
 						Utils.writeLS('identityType', 'EmailPassword');
