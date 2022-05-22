@@ -134,8 +134,8 @@ class LoginPage extends Page{
         $("#reset-password-button").click(event => {
             event.preventDefault();
             bcUser.resetPassword(Utils.readLS('email')).then(res => {
-                $.modal.close();
                 Utils.showSuccess('Change password email sent');
+                $.modal.close();
             });
         });
     }
@@ -246,15 +246,15 @@ class ConfirmEmailPage extends Page{
         $("#resend-code-button").click(event => {
             event.preventDefault();
             bcUser.resendEmailVerification().then(res => {
-                $.modal.close();
                 Utils.showSuccess('Email verification code resent');
+                $.modal.close();
             });
         });
         $("#change-email-button").click(event => {
             event.preventDefault();
             bcUser.updateEmail($('#email').val(), $('#password').val()).then(res => {
-                $.modal.close();
                 Utils.showSuccess('Email changed');
+                $.modal.close();
             });
         });
 
