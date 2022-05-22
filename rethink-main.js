@@ -314,8 +314,8 @@ class BCUser{
 	}
 
 	async resetPassword(email){
-		console.log(`update email to ${email}`);
-		this.brainCloudClient.authenticate.resetEmailPassword(email, async result => {
+		console.log(`reset password for ${email}`);
+		this.brainCloudClient.resetEmailPassword(email, async result => {
 			return this.interpretStatus(result);
 		});
 	}
