@@ -133,7 +133,7 @@ class LoginPage extends Page{
         }));
         $("#reset-password-button").click(event => {
             event.preventDefault();
-            bcUser.resetPassword($('#email').val()).then(res => {
+            bcUser.resetPassword(Utils.readLS('email')).then(res => {
                 $.modal.close();
                 Utils.showSuccess('Change password email sent');
             });
