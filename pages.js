@@ -181,7 +181,7 @@ class SelectPasswordPage extends Page{
         this.$passwordInput = $('#password');
         this.$passwordAgainInput = $('#password-again');
         const email = Utils.readLS('email');
-        $('email-address').text(email);
+        $('#email-address').text(email);
         $('#next-button').click(this.handleNext.bind(this));
         this.$passwordInput.on('keydown', (event => {
             if (event.which === 13){
