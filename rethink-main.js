@@ -195,6 +195,13 @@ class BCUser{
 		});
 		return this.attributePromise;
 	}
+	async resendEmailVerification(){
+		console.log('resend verification email');
+		const response = await $.get(
+			'https://portal.braincloudservers.com/webhook/13623/resendVerMail/8496c98e-d255-4538-b072-e3af2f9e6209');
+		console.log('response', response);
+		return response?.existence ?? false;
+	}
 
 
 	/*async updateUsername(username){

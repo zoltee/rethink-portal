@@ -236,6 +236,8 @@ class ConfirmEmailPage extends Page{
         $("#resend-code-button").click(event => {
             event.preventDefault();
             bcUser.resendEmailVerification();
+            $.modal.close();
+            Utils.showSuccess('Email verification code resent');
         });
         $("#update-email-button").click(event => {
             event.preventDefault();
