@@ -312,6 +312,15 @@ class BCUser{
 			return this.interpretStatus(result);
 		});
 	}
+
+	async resetPassword(email){
+		console.log(`update email to ${email}`);
+		this.brainCloudClient.authenticate.resetEmailPassword(email, async result => {
+			return this.interpretStatus(result);
+		});
+	}
+
+
 	async updateUsername(username){
 		console.log(`update username to ${username}`);
 		this.brainCloudClient.playerState.updateUserName(username, async result => {

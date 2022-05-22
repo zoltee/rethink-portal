@@ -125,11 +125,19 @@ class LoginPage extends Page{
         $('#email-address').text(Utils.readLS('email'));
         this.$passwordInput = $('#password');
         $('#signin-button').click(this.handleNext.bind(this));
+
         this.$passwordInput.on('keydown', (event => {
             if (event.which === 13){
                 this.handleNext(event);
             }
         }));
+        $("#reset-password-button").click(event => {
+            event.preventDefault();
+            bcUser.resetPassword().then(res => {
+                $.modal.close();
+                Utils.showSuccess('Change password email sent');
+            });
+        });
     }
     handleNext(event){
         event.preventDefault();
