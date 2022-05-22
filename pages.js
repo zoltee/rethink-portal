@@ -122,6 +122,7 @@ class AuthenticatePage extends Page{
 class LoginPage extends Page{
     $passwordInput;
     async initialize(){
+        $('#email-address').text(Utils.readLS('email'));
         this.$passwordInput = $('#password');
         $('#signin-button').click(this.handleNext.bind(this));
         this.$passwordInput.on('keydown', (event => {
@@ -229,8 +230,8 @@ class SelectPasswordPage extends Page{
 }
 class ConfirmEmailPage extends Page{
     async initialize(){
-        await Utils.checkLoggedIn();
         $('#email-address').text(Utils.readLS('email'));
+        await Utils.checkLoggedIn();
         $("#next-button").click(event => {
             event.preventDefault();
         });
