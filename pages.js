@@ -229,6 +229,7 @@ class SelectPasswordPage extends Page{
 }
 class ConfirmEmailPage extends Page{
     async initialize(){
+        await Utils.checkLoggedIn();
         $('#email-address').text(Utils.readLS('email'));
         $("#next-button").click(event => {
             event.preventDefault();
