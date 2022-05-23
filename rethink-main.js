@@ -208,6 +208,15 @@ class BCUser{
 		return response?.existence ?? false;
 	}
 
+	async checkEmailVerified(){
+		console.log('check if email is verified');
+		const response = await $.get(
+			`https://portal.braincloudservers.com/webhook/13623/checkEmailVerified/934ba97f-ee78-4ff7-9126-e215a001a931?email=${encodeURIComponent(Utils.readLS('email'))}`);
+		console.log('response', response);
+		return response?.emailVerified ?? false;
+	}
+
+
 
 	/*async updateUsername(username){
 		return await this.updateAttributes({username});
