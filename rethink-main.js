@@ -213,7 +213,11 @@ class BCUser{
 		const response = await $.get(
 			`https://portal.braincloudservers.com/webhook/13623/checkEmailVerified/934ba97f-ee78-4ff7-9126-e215a001a931?email=${encodeURIComponent(Utils.readLS('email'))}`);
 		console.log('response', response);
-		return response?.emailVerified ?? false;
+		const verified = response?.data?.emailVerified ?? false;
+		if (verified){
+			this.setUser(response.data);
+		}
+		return verified;
 	}
 
 

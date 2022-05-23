@@ -269,18 +269,13 @@ class ConfirmEmailPage extends Page{
     }
     checkStatus(){
         const intervalID = setInterval(() => {
-        bcUser.checkEmailVerified().then(res => {
-            console.log('res from email verification check', res);
-
-            }
-
-        );
-            // bcUser.readUserData().then(userData => {
-            //     if (userData?.emailVerified){
-            //         document.location.href = $("#next-button").attr('href');
-            //     }
-            // });
-
+           // bcUser.readUserData().then(userData => {
+            bcUser.checkEmailVerified().then(verified => {
+                if (verified){
+                    document.location.href = $("#next-button").attr('href');
+                }
+                console.log('email not verified');
+            });
         }, 1000);
     }
 }
