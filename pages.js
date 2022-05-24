@@ -180,7 +180,7 @@ class PickUsernamePage extends Page{
     }
     handleNext(event){
         event.preventDefault();
-        if (Utils.validateUsername(usernameInput)){
+        if (Utils.validateUsername(this.$usernameInput)){
             document.location.href = $("#next-button").attr('href');
         }
     }
