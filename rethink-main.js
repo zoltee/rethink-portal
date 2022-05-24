@@ -39,6 +39,10 @@ class BCUser{
 		if (data) {
 			if (saveLocal){
 				Utils.writeJSONLS("BC-User", data);
+				const profileId = localStorage.getItem('_mainWrapper.profileId');
+				if (!profileId){
+					localStorage.setItem('_mainWrapper.profileId', data.profileId);
+				}
 			}
 			this.user = data;
 			if (this.user.pictureUrl) {
