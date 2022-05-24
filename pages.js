@@ -182,6 +182,8 @@ class PickUsernamePage extends Page{
         event.preventDefault();
         if (Utils.validateUsername(this.$usernameInput).val()){
             document.location.href = $("#next-button").attr('href');
+        }else{
+            Utils.showError('Please specify a screen name to continue');
         }
     }
 
