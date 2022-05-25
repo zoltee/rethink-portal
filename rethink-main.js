@@ -40,8 +40,12 @@ class BCUser{
 			if (saveLocal){
 				Utils.writeJSONLS("BC-User", data);
 				const profileId = localStorage.getItem('_mainWrapper.profileId');
-				if (!profileId){
+				if (!profileId || profileId !== data.profileId){
 					localStorage.setItem('_mainWrapper.profileId', data.profileId);
+				}
+				const sessionId = localStorage.getItem('_mainWrapper.sessionId');
+				if (!sessionId || sessionId !== data.sessionId){
+					localStorage.setItem('_mainWrapper.sessionId', data.sessionId);
 				}
 			}
 			this.user = data;
@@ -236,9 +240,15 @@ class BCUser{
 		localStorage.removeItem(BCUser.LSPrefix+"email");
 		localStorage.removeItem(BCUser.LSPrefix+"username");
 		localStorage.removeItem(BCUser.LSPrefix+"headset-code");
+		localStorage.removeItem(BCUser.LSPrefix+"identityType");
+		localStorage.removeItem(BCUser.LSPrefix+"attributes");
 		return new Promise((resolve, reject) => {
 			this.brainCloudClient.playerState.logout(result => {
 				console.log('logout', result);
+				localStorage.removeItem('_mainWrapper.anonymousId');
+				localStorage.removeItem('_mainWrapper.sessionId');
+				localStorage.removeItem('_mainWrapper.profileId');
+
 				resolve(true);
 			});
 		});
@@ -320,7 +330,7 @@ class BCUser{
 	async verifyHeadsetCode(code){
 		console.log(`verify headset code ${code}`);
 		const response = await $.get(
-			`https://portal.braincloudservers.com/webhook/13623/pairHeadset/b57e8ed4-b1fc-44f8-8793-743f9c28d4fc?code=${code}`);
+			`https://portal.braincloudservers.com/webhook/13623/pairHeadset/b57e8ed4-b1fc-44f8-8793-743f9c28d4fc?code=${code}&profileId=${this.user.profileId}`);
 		const headsetRecord = response?.headsetRecord ?? false;
 		console.log('got headset data', headsetRecord);
 		if (headsetRecord){
