@@ -264,7 +264,7 @@ class BCUser{
 				return false;
 				break;
 			case 403:
-				if (result.reason_code === 40426) { //NULL_SESSION
+				if (result.reason_code === 40426 || result.reason_code === 40304) { //NULL_SESSION
 					if (this.retriedReconnect) {
 						document.location.href = '/authenticate';
 					}
