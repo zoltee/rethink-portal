@@ -205,9 +205,9 @@ class BCUser{
 
 	async loadAttributes(){
 		console.log('loading attributes');
-		/*if (this.refreshedAttributes === false && this.attributePromise){
+		if (this.refreshedAttributes === false && this.attributePromise){
 			return this.attributePromise;
-		}*/
+		}
 		this.attributePromise = new Promise((resolve, reject) => {
 			console.log('refreshing attributes');
 			this.refreshedAttributes = false;
