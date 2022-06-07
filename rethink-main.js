@@ -4,15 +4,25 @@ class BCUser{
 	BCUserAttributes;
 	static LSPrefix = 'Rethink.';
 	retriedReconnect = false;
+	retriedAttributes = false;
 	refreshedAttributes = null;
 	refreshedUser = null;
 	static webhooks = {
-		resendVerMail: 'https://portal.braincloudservers.com/webhook/13623/resendVerMail/8496c98e-d255-4538-b072-e3af2f9e6209?email=<email>',
-		checkEmailVerified: 'https://portal.braincloudservers.com/webhook/13623/checkEmailVerified/934ba97f-ee78-4ff7-9126-e215a001a931?email=<email>',
-		emailExists: 'https://portal.braincloudservers.com/webhook/13623/emailExists/fc93c494-1167-4dd4-89f5-b7c1d4dfe25b?emailAddress=<email>',
-		pairHeadset: 'https://portal.braincloudservers.com/webhook/13623/pairHeadset/b57e8ed4-b1fc-44f8-8793-743f9c28d4fc?code=<code>&profileId=<rofileId>',
-		deleteHeadsetCode: 'https://portal.braincloudservers.com/webhook/13623/deleteHeadsetCode/f2d0db03-1345-41f8-a588-4c078d6cba17?entityId=<entityId>'
+		// resendVerMail: 'https://portal.braincloudservers.com/webhook/13623/resendVerMail/8496c98e-d255-4538-b072-e3af2f9e6209?email=<email>',
+		// checkEmailVerified: 'https://portal.braincloudservers.com/webhook/13623/checkEmailVerified/934ba97f-ee78-4ff7-9126-e215a001a931?email=<email>',
+		// emailExists: 'https://portal.braincloudservers.com/webhook/13623/emailExists/fc93c494-1167-4dd4-89f5-b7c1d4dfe25b?emailAddress=<email>',
+		// pairHeadset: 'https://portal.braincloudservers.com/webhook/13623/pairHeadset/b57e8ed4-b1fc-44f8-8793-743f9c28d4fc?code=<code>&profileId=<rofileId>',
+		// deleteHeadsetCode: 'https://portal.braincloudservers.com/webhook/13623/deleteHeadsetCode/f2d0db03-1345-41f8-a588-4c078d6cba17?entityId=<entityId>'
+		resendVerMail: 'https://portal-contxtual.braincloudservers.com/webhook/30011/resendVerMail/ade2952f-acbd-4318-a0a8-3b93d7db6db1?email=<email>',
+		checkEmailVerified: 'https://portal-contxtual.braincloudservers.com/webhook/30011/checkEmailVerified/e4c51be7-4af0-47d6-baba-c42b3a6913b1?email=<email>',
+		emailExists: 'https://portal-contxtual.braincloudservers.com/webhook/30011/emailExists/1f53cfff-f934-436d-8761-e6ec5ade821a?emailAddress=<email>',
+		pairHeadset: 'https://portal-contxtual.braincloudservers.com/webhook/30011/pairHeadset/c5c1ec63-5755-4160-9a9a-8090c2b4c0af?code=<code>&profileId=<rofileId>',
+		deleteHeadsetCode: 'https://portal-contxtual.braincloudservers.com/webhook/30011/deleteHeadsetCode/821bd973-b8a7-4bc2-a180-593802547dc1?entityId=<entityId>'
 	}
+	static API_STATUS_FAILED = 0;
+	static API_STATUS_OK = 1;
+	static API_STATUS_RECONNECTED = 2;
+
 	get userData(){
 		return this.user;
 	}
@@ -202,7 +212,11 @@ class BCUser{
 			console.log('refreshing attributes');
 			this.refreshedAttributes = false;
 			this.brainCloudClient.playerState.getAttributes(async result =>{
-				if(await this.interpretStatus(result)){
+				const callStatus = await this.interpretStatus(result);
+				if (callStatus === BCUser.API_STATUS_RECONNECTED && !this.retriedAttributes){
+					return this.loadAttributes();
+				}
+				if(callStatus && result?.data?.attributes){
 					this.refreshedAttributes = true;
 					this.attributePromise = null;
 					this.BCUserAttributes = result.data.attributes;
@@ -263,12 +277,12 @@ class BCUser{
 	async interpretStatus(result, showError = false){
 		console.log(result);
 		switch (result.status){
-			case 200: return true;
+			case 200: return BCUser.API_STATUS_OK;
 			case 202:
 				if (result.reason_code === 40214){ //EMAIL_NOT_VALIDATED
 					await this.resendEmailVerification();
 				}
-				return false;
+				return BCUser.API_STATUS_FAILED;
 				break;
 			case 403:
 				if (result.reason_code === 40426 || result.reason_code === 40304) { //NULL_SESSION
@@ -277,19 +291,19 @@ class BCUser{
 					}
 					try {
 						await this.reconnectUser();
-						return true;
+						return BCUser.API_STATUS_RECONNECTED;
 					} catch (e) {
 						if (showError) Utils.showError('Error while trying to reconnect after session was lost');
-						return false;
+						return BCUser.API_STATUS_FAILED;
 					}
 				}
 				break;
 			default:
 				if (showError) Utils.showError(result.status_message);
-				return false;
+				return BCUser.API_STATUS_FAILED;
 			break;
 		}
-		return false;
+		return BCUser.API_STATUS_FAILED;
 	}
 
 	async refreshIdentities(){
