@@ -6,6 +6,13 @@ class BCUser{
 	retriedReconnect = false;
 	refreshedAttributes = null;
 	refreshedUser = null;
+	static webhooks = {
+		resendVerMail: 'https://portal.braincloudservers.com/webhook/13623/resendVerMail/8496c98e-d255-4538-b072-e3af2f9e6209?email=<email>',
+		checkEmailVerified: 'https://portal.braincloudservers.com/webhook/13623/checkEmailVerified/934ba97f-ee78-4ff7-9126-e215a001a931?email=<email>',
+		emailExists: 'https://portal.braincloudservers.com/webhook/13623/emailExists/fc93c494-1167-4dd4-89f5-b7c1d4dfe25b?emailAddress=<email>',
+		pairHeadset: 'https://portal.braincloudservers.com/webhook/13623/pairHeadset/b57e8ed4-b1fc-44f8-8793-743f9c28d4fc?code=<code>&profileId=<rofileId>',
+		deleteHeadsetCode: 'https://portal.braincloudservers.com/webhook/13623/deleteHeadsetCode/f2d0db03-1345-41f8-a588-4c078d6cba17?entityId=<entityId>'
+	}
 	get userData(){
 		return this.user;
 	}
@@ -210,16 +217,16 @@ class BCUser{
 	}
 	async resendEmailVerification(){
 		console.log('resend verification email');
-		const response = await $.get(
-			`https://portal.braincloudservers.com/webhook/13623/resendVerMail/8496c98e-d255-4538-b072-e3af2f9e6209?email=${encodeURIComponent(Utils.readLS('email'))}`);
+		const resendVerMailUrl = BCUser.webhooks.resendVerMail.replace('<email>', encodeURIComponent(Utils.readLS('email')));
+		const response = await $.get(resendVerMailUrl);
 		console.log('response', response);
 		return response?.existence ?? false;
 	}
 
 	async checkEmailVerified(){
 		console.log('check if email is verified');
-		const response = await $.get(
-			`https://portal.braincloudservers.com/webhook/13623/checkEmailVerified/934ba97f-ee78-4ff7-9126-e215a001a931?email=${encodeURIComponent(Utils.readLS('email'))}`);
+		const checkEmailVerified = BCUser.webhooks.checkEmailVerified.replace('<email>', encodeURIComponent(Utils.readLS('email')));
+		const response = await $.get(checkEmailVerified);
 		console.log('response', response);
 		const verified = response?.data?.emailVerified ?? false;
 		if (verified){
@@ -322,22 +329,25 @@ class BCUser{
 	}
 	async emailExists(email){
 		console.log(`check if email exists ${email}`);
-		const response = await $.get(
-			`https://portal.braincloudservers.com/webhook/13623/emailExists/fc93c494-1167-4dd4-89f5-b7c1d4dfe25b?emailAddress=${encodeURIComponent(email)}`);
+		const emailExistsURL = BCUser.webhooks.emailExists.replace('<email>', encodeURIComponent(Utils.readLS('email')));
+		const response = await $.get(emailExistsURL);
 		return response?.existence ?? false;
 	}
 
 	async verifyHeadsetCode(code){
 		console.log(`verify headset code ${code}`);
-		const response = await $.get(
-			`https://portal.braincloudservers.com/webhook/13623/pairHeadset/b57e8ed4-b1fc-44f8-8793-743f9c28d4fc?code=${code}&profileId=${this.user.profileId}`);
+		const pairHeadsetURL = BCUser.webhooks.pairHeadset.replace('<code>', code).replace('<profileId>', this.user.profileId);
+		const response = await $.get(pairHeadsetURL);
+
 		const headsetRecord = response?.headsetRecord ?? false;
 		console.log('got headset data', headsetRecord);
 		if (headsetRecord){
 			delete headsetRecord.data.code;
 			// Delete pairing record, no need to wait
-			$.get(
-				`https://portal.braincloudservers.com/webhook/13623/deleteHeadsetCode/f2d0db03-1345-41f8-a588-4c078d6cba17?entityId=${headsetRecord.entityId}`);
+			const deleteHeadsetCodeURL = BCUser.webhooks.deleteHeadsetCode.replace('<entityId>', headsetRecord.entityId);
+			// no need to wait
+			$.get(deleteHeadsetCodeURL);
+
 			await this.updateAttributes({headsetData: headsetRecord.data});
 			return headsetRecord.data;
 		}
