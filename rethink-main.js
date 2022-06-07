@@ -199,13 +199,22 @@ class BCUser{
 			}
 			return lSAttributes[attribute];
 		}
-		const attributes = await this.loadAttributes();
+		let attributes;
+		try{
+			attributes = await this.loadAttributes();
+		}catch(e){
+			if (e.error === 'refreshed'){
+				attributes = await this.loadAttributes();
+			}else{
+				throw e;
+			}
+		}
 		return attributes[attribute];
 	}
 
-	async loadAttributes(force = false){
+	async loadAttributes(){
 		console.log('loading attributes');
-		if (!force && this.refreshedAttributes === false && this.attributePromise){
+		if (this.refreshedAttributes === false && this.attributePromise){
 			return this.attributePromise;
 		}
 		this.attributePromise = new Promise((resolve, reject) => {
@@ -213,8 +222,8 @@ class BCUser{
 			this.refreshedAttributes = false;
 			this.brainCloudClient.playerState.getAttributes(async result =>{
 				const callStatus = await this.interpretStatus(result);
-				if (callStatus === BCUser.API_STATUS_RECONNECTED && !this.retriedAttributes){
-					return this.loadAttributes(true);
+				if (callStatus === BCUser.API_STATUS_RECONNECTED){
+					reject('refreshed');
 				}
 				if(callStatus && result?.data?.attributes){
 					this.refreshedAttributes = true;
