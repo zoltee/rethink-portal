@@ -218,26 +218,32 @@ class BCUser{
 			return this.attributePromise;
 		}
 		this.attributePromise = new Promise((resolve, reject) => {
-			console.log('refreshing attributes');
-			this.refreshedAttributes = false;
-			this.brainCloudClient.playerState.getAttributes(async result =>{
-				const callStatus = await this.interpretStatus(result);
+			const that = this;
+			async function handleResult(result){
+				const callStatus = await that.interpretStatus(result);
 				if (callStatus === BCUser.API_STATUS_RECONNECTED){
-					reject('refreshed');
+					that.brainCloudClient.playerState.getAttributes(handleResult);
 				}
 				if(callStatus && result?.data?.attributes){
-					this.refreshedAttributes = true;
-					this.attributePromise = null;
-					this.BCUserAttributes = result.data.attributes;
-					Utils.writeJSONLS('attributes', this.BCUserAttributes);
-					resolve(this.BCUserAttributes);
+					that.refreshedAttributes = true;
+					that.attributePromise = null;
+					that.BCUserAttributes = result.data.attributes;
+					Utils.writeJSONLS('attributes', that.BCUserAttributes);
+					resolve(that.BCUserAttributes);
 				}else{
 					reject(result.status+' : '+ result.status_message);
 				}
-			});
+			}
+			console.log('refreshing attributes');
+			this.refreshedAttributes = false;
+			this.brainCloudClient.playerState.getAttributes(handleResult);
 		});
 		return this.attributePromise;
 	}
+
+
+
+
 	async resendEmailVerification(){
 		console.log('resend verification email');
 		const resendVerMailUrl = BCUser.webhooks.resendVerMail.replace('<email>', encodeURIComponent(Utils.readLS('email')));
