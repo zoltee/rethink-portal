@@ -202,11 +202,11 @@ class BCUser{
 		let attributes;
 		try{
 			attributes = await this.loadAttributes();
-		}catch(e){
-			if (e.error === 'refreshed'){
+		}catch(error){
+			if (error === 'refreshed'){
 				attributes = await this.loadAttributes();
 			}else{
-				throw e;
+				throw error;
 			}
 		}
 		return attributes[attribute];
