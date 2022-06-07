@@ -203,9 +203,9 @@ class BCUser{
 		return attributes[attribute];
 	}
 
-	async loadAttributes(){
+	async loadAttributes(force = false){
 		console.log('loading attributes');
-		if (this.refreshedAttributes === false && this.attributePromise){
+		if (!force && this.refreshedAttributes === false && this.attributePromise){
 			return this.attributePromise;
 		}
 		this.attributePromise = new Promise((resolve, reject) => {
@@ -214,7 +214,7 @@ class BCUser{
 			this.brainCloudClient.playerState.getAttributes(async result =>{
 				const callStatus = await this.interpretStatus(result);
 				if (callStatus === BCUser.API_STATUS_RECONNECTED && !this.retriedAttributes){
-					return this.loadAttributes();
+					return this.loadAttributes(true);
 				}
 				if(callStatus && result?.data?.attributes){
 					this.refreshedAttributes = true;
