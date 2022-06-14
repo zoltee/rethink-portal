@@ -31,7 +31,7 @@ class BCUser{
 	}
 	constructor(BCAppId, BCSecret, BCVersion, BCApiUrl='https://api.braincloudservers.com') {//"https://api.bc.bigfishgames.com"
 		this.brainCloudClient = new BrainCloudWrapper("_mainWrapper");
-		this.brainCloudClient.setServerUrl(BCApiUrl);
+		this.brainCloudClient.brainCloudClient.setServerUrl(BCApiUrl);
 		this.brainCloudClient.initialize(BCAppId, BCSecret, BCVersion);
 		this.brainCloudClient.brainCloudClient.enableLogging(true);
 		const bcUser = Utils.readJSONLS("BC-User");
