@@ -29,7 +29,7 @@ class BCUser{
 	get identityType(){
 		return Utils.readLS('identityType');// EmailPassword / Facebook / Google
 	}
-	constructor(BCAppId, BCSecret, BCVersion, apiUrl='https://api.braincloudservers.com') {//"https://api.bc.bigfishgames.com"
+	constructor(BCAppId, BCSecret, BCVersion, BCApiUrl='https://api.braincloudservers.com') {//"https://api.bc.bigfishgames.com"
 		this.brainCloudClient = new BrainCloudWrapper("_mainWrapper");
 		this.brainCloudClient.setServerUrl(apiUrl);
 		this.brainCloudClient.initialize(BCAppId, BCSecret, BCVersion);

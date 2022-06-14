@@ -1,4 +1,4 @@
-var bcUser = new BCUser(BCAppId, BCSecret, BCVersion, apiUrl);
+var bcUser = new BCUser(BCAppId, BCSecret, BCVersion, BCApiUrl);
 $(async() =>{
     if (!reThinkPage){
         reThinkPage = 'Home';
