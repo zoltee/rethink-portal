@@ -199,16 +199,7 @@ class BCUser{
 			}
 			return lSAttributes[attribute];
 		}
-		let attributes;
-		try{
-			attributes = await this.loadAttributes();
-		}catch(error){
-			if (error === 'refreshed'){
-				attributes = await this.loadAttributes();
-			}else{
-				throw error;
-			}
-		}
+		const attributes = await this.loadAttributes();
 		return attributes[attribute];
 	}
 
