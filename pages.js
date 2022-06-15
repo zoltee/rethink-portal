@@ -1,4 +1,5 @@
 var bcUser = new BCUser(BCAppId, BCSecret, BCVersion, BCApiUrl);
+const GOOGLE_CLIENT_ID = '930957171392-4471lakpcubvjidtho0vsoqqhggonl1k';
 $(async() =>{
     if (!reThinkPage){
         reThinkPage = 'Home';
@@ -682,33 +683,16 @@ class GoogleLogin{
     settings
     initialize(settings){
         this.settings = settings;
-        this.auth2;
+
         console.log('initializing google');
         $('#google-login').click(event => {
             $.getScript('https://apis.google.com/js/platform.js', ()=> {
                 gapi.load('auth2', () => {
                     console.log('google script loaded');
                     this.auth2 = gapi.auth2.init({
-
-                        client_id: "930957171392-4471lakpcubvjidtho0vsoqqhggonl1k.apps.googleusercontent.com",
+                        client_id: `${GOOGLE_CLIENT_ID}.apps.googleusercontent.com`,
                         scope: 'email profile openid',
-                    }).then(googleAuth=>{
-                        console.log(googleAuth);
-                        const googleUser = googleAuth.currentUser.get();
-                        const profile = googleUser.getBasicProfile();
-                        const email = profile.getEmail();
-                        const name = profile.getName();
-                        const userId = googleUser.getId();
-                        const access_token = googleUser.getAuthResponse().access_token;
-                        const id_token = googleUser.getAuthResponse().id_token;
-                        this.settings.loginCallback({
-                            name,
-                            email,
-                            userId,
-                            access_token,
-                            id_token
-                        });
-                    },error=>{
+                    }).then(this.login.bind(this),error=>{
                         Utils.showError('Error logging in',error)
                     });
                   /*  gapi.auth2.authorize({
@@ -730,6 +714,36 @@ class GoogleLogin{
             });
         });
     }
+    login(googleAuth){
+        console.log(googleAuth);
+        const isSignedIn = googleAuth.isSignedIn.get();
+        if (!isSignedIn){
+            googleAuth.signIn().then(this.handleGoogleUser.bind(this), error=>{
+                Utils.showError('Error logging in',error)
+            });
+            return;
+        }
+        const googleUser = googleAuth.currentUser.get();
+        this.handleGoogleUser(googleUser);
+    }
+    handleGoogleUser(googleUser){
+        const profile = googleUser.getBasicProfile();
+        const email = profile.getEmail();
+        const name = profile.getName();
+        const userId = googleUser.getId();
+        const access_token = googleUser.getAuthResponse().access_token;
+        const id_token = googleUser.getAuthResponse().id_token;
+        this.settings.loginCallback({
+            name,
+            email,
+            userId,
+            access_token,
+            id_token
+        });
+
+    }
+
+
 }
 
 class FacebookLogin{
