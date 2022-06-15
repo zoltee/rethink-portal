@@ -719,7 +719,7 @@ class GoogleLogin{
         const isSignedIn = googleAuth.isSignedIn.get();
         if (!isSignedIn){
             googleAuth.signIn().then(this.handleGoogleUser.bind(this), error=>{
-                Utils.showError('Error logging in',error)
+                Utils.showError(`Error logging in: ${error.toString()}`);
             });
             return;
         }
