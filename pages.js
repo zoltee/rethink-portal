@@ -1,5 +1,4 @@
 var bcUser = new BCUser(BCAppId, BCSecret, BCVersion, BCApiUrl);
-const GOOGLE_CLIENT_ID = '930957171392-4471lakpcubvjidtho0vsoqqhggonl1k';
 $(async() =>{
     if (!reThinkPage){
         reThinkPage = 'Home';
@@ -755,7 +754,7 @@ class FacebookLogin{
             $.getScript('https://connect.facebook.net/en_US/sdk.js', ()=>{
                 console.log('facebook script loaded');
                 FB.init({
-                    appId: '950178832349000',
+                    appId: FACEBOOK_APP_ID,
                     version: 'v2.7' // or v2.1, v2.2, v2.3, ...
                 });
                 FB.getLoginStatus(this.statusChangeCallback.bind(this));
