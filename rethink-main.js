@@ -16,7 +16,7 @@ class BCUser{
 		resendVerMail: 'https://portal-contxtual.braincloudservers.com/webhook/30011/resendVerMail/ade2952f-acbd-4318-a0a8-3b93d7db6db1?email=<email>',
 		checkEmailVerified: 'https://portal-contxtual.braincloudservers.com/webhook/30011/checkEmailVerified/e4c51be7-4af0-47d6-baba-c42b3a6913b1?email=<email>',
 		emailExists: 'https://portal-contxtual.braincloudservers.com/webhook/30011/emailExists/1f53cfff-f934-436d-8761-e6ec5ade821a?emailAddress=<email>',
-		pairHeadset: 'https://portal-contxtual.braincloudservers.com/webhook/30011/pairHeadset/c5c1ec63-5755-4160-9a9a-8090c2b4c0af?code=<code>&profileId=<rofileId>',
+		pairHeadset: 'https://portal-contxtual.braincloudservers.com/webhook/30011/pairHeadset/c5c1ec63-5755-4160-9a9a-8090c2b4c0af?code=<code>&profileId=<profileId>',
 		deleteHeadsetCode: 'https://portal-contxtual.braincloudservers.com/webhook/30011/deleteHeadsetCode/821bd973-b8a7-4bc2-a180-593802547dc1?entityId=<entityId>'
 	}
 	static API_STATUS_FAILED = 0;
