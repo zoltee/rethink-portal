@@ -480,6 +480,7 @@ class AvatarPage extends Page{
     swiper;
     async initialize(){
         await Utils.checkLoggedIn();
+        $('#next-button').click(this.handleNext.bind(this));
         this.initSwiper();
         const customizer = new AvatarCustomizer();
         customizer.initialize({
@@ -564,6 +565,15 @@ class AvatarPage extends Page{
             }
         });
     }
+    handleNext(event){
+        event.preventDefault();
+        if (bcUser.isUserLoggedIn()){
+            document.location.href = '/profile';
+        }else{
+            document.location.href = $('#next-button').attr('href');
+        }
+    }
+
 }
 
 class AvatarCustomizer{
