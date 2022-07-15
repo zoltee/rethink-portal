@@ -295,7 +295,7 @@ class PairHeadsetPage extends Page{
             document.location.href = $nextButton.attr('href');
         });
         codeInputs.keydown(event => {
-            console.log(event);
+            // console.log(event);
             const targetId = event.target.id;
             const currentElement = $(event.target);
             const currentIndex = parseInt(targetId.substr(-1));
@@ -334,7 +334,7 @@ class PairHeadsetPage extends Page{
             event.preventDefault();
             const content = event.originalEvent.clipboardData.getData('text/plain');
             for (var i = 0; i < Math.min(4, content.length); i++) {
-                codeInputs[i].val(content[i]);
+                codeInputs[i].value = content[i];
             }
         });
 
