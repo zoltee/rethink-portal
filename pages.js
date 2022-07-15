@@ -573,7 +573,7 @@ class AvatarCustomizer{
         this.glbCallback = settings.glbCallback ?? null;
         this.imageCallback = settings.imageCallback ?? null;
         $('#avatar-edit').click(event => {
-            const customizer = $('<div id="avatar-customizer"><iframe width="100%" height="100%" id="customizer-frame" src="https://contxtual.readyplayer.me/avatar?frameApi" class="frame" allow="camera *; microphone *"></iframe><b id="customizer-close" style="position: absolute;top: 0;right: 20px;color: #ce3391;z-index: 1000;padding: 10px;cursor: pointer;">X</b></div>').appendTo('body');
+            const customizer = $('<div id="avatar-customizer"><iframe width="90%" height="90%" id="customizer-frame" src="https://contxtual.readyplayer.me/avatar?frameApi" class="frame" allow="camera *; microphone *"></iframe><b id="customizer-close" style="position: absolute;top: 0;right: 20px;color: #ce3391;z-index: 1000;padding: 10px;cursor: pointer;">X</b></div>').appendTo('body');
             $(window).on('message', e => {
                 this.receiveMessage(e.originalEvent);
             })
