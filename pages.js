@@ -330,6 +330,13 @@ class PairHeadsetPage extends Page{
                 }
             }
         });
+        codeInputs.on('paste', event => {
+            event.preventDefault();
+            const content = event.originalEvent.clipboardData.getData('text/plain');
+            for (var i = 0; i < Math.min(4, content.length); i++) {
+                codeInputs[i].val(content[i]);
+            }
+        });
 
     }
     async validateHeadsetCode(codeInputs) {
