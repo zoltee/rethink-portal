@@ -365,9 +365,9 @@ class BCUser{
 		if (headsetRecord){
 			delete headsetRecord.data.code;
 			// Delete pairing record, no need to wait
-			const deleteHeadsetCodeURL = BCUser.webhooks.deleteHeadsetCode.replace('<entityId>', headsetRecord.entityId);
+			// const deleteHeadsetCodeURL = BCUser.webhooks.deleteHeadsetCode.replace('<entityId>', headsetRecord.entityId);
 			// no need to wait
-			$.get(deleteHeadsetCodeURL);
+			// $.get(deleteHeadsetCodeURL);
 
 			await this.updateAttributes({headsetData: headsetRecord.data});
 			return headsetRecord.data;
