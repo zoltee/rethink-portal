@@ -369,7 +369,7 @@ class BCUser{
 			// no need to wait
 			// $.get(deleteHeadsetCodeURL);
 
-			await this.updateAttributes({headsetData: headsetRecord.data});
+			await this.updateAttributes({headsetData: JSON.stringify(headsetRecord.data)});
 			return headsetRecord.data;
 		}
 		return false;
