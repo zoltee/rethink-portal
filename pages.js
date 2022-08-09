@@ -402,8 +402,15 @@ class ProfilePage extends Page{
                     if (e.which === 27) {// escape
                         disableEditing($inputField);
                     }
+                    if (e.which === 13) {// enter
+                        saveField()
+                    }
             });
             $saveIcon.click(e=>{
+                saveField();
+            });
+
+            var saveField = ()=>{
                 switch ($inputField.attr('name')){
                     case 'username':
                         if (!Utils.validateUsername($inputField)){
@@ -463,8 +470,9 @@ class ProfilePage extends Page{
                         });
                         break;
                 }
-            });
+            };
         }
+
 
         bcUser.readUser().then(data => {
             $('#email').val(data.emailAddress);
