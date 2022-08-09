@@ -294,7 +294,7 @@ class BCUser{
 			case 403:
 				if (result.reason_code === 40426 || result.reason_code === 40304) { //NULL_SESSION
 					if (this.retriedReconnect) {
-						document.location.href = '/authenticate';
+						document.location.href = `/${SLUGS['authenticate']}`;
 					}
 					try {
 						await this.reconnectUser();
@@ -478,7 +478,7 @@ class Utils{
 	}
 
 	static redirectToLogin(){
-		document.location.href = '/authenticate';
+		document.location.href = `/${SLUGS['authenticate']}`;
 	}
 
 	static applyProfileURL(url, customized = false){

@@ -6,6 +6,9 @@ $(async() =>{
     let page;
     switch (reThinkPage) {
         default:
+        case 'Welcome':
+            page = new WelcomePage();
+        break;
         case 'Home':
             page = new HomePage();
             break;
@@ -42,6 +45,10 @@ $(async() =>{
 class Page{
 }
 
+class WelcomePage extends Page{
+    async initialize(){
+    }
+}
 class HomePage extends Page{
     async initialize(){
         await Utils.checkLoggedIn();
