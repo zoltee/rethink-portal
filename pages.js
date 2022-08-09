@@ -80,21 +80,21 @@ class AuthenticatePage extends Page{
     }
     getNextURL(){
         if(!bcUser.userData.playerName){
-            document.location.href ='/pick-username';
+            document.location.href =`/${SLUGS['pick-username']}`;
         }
 
     }
 
     emailLoginCallback(exists){
-        document.location.href = exists ? '/login' : '/pick-username';
+        document.location.href = exists ? `/${SLUGS['login']}` : `/${SLUGS['pick-username']}`;
     }
     googleLoginCallback(profileData){
         bcUser.loginGoogle(profileData.email, profileData.id_token, true).then(data => {
             console.log('G logged in', data);
             if(data && data.newUser === "false"){
-                document.location.href = '/';
+                document.location.href = `/${SLUGS['dashboard']}`;
             }else {
-                document.location.href = '/pair-headset';
+                document.location.href = `/${SLUGS['pair-headset']}`;
             }
 
         }).catch(error => {
@@ -107,9 +107,9 @@ class AuthenticatePage extends Page{
         bcUser.loginFacebook(authResponse.userID, authResponse.accessToken, true).then(data => {
             console.log('FB logged in', data);
             if(data && data.newUser === "false"){
-                document.location.href = '/';
+                document.location.href = `/${SLUGS['dashboard']}`;
             }else {
-                document.location.href = '/pair-headset';
+                document.location.href = `/${SLUGS['pair-headset']}`;
             }
 
         }).catch(error => {
@@ -156,7 +156,7 @@ class LoginPage extends Page{
             })
             .catch(error => {
                 if (error === Utils.EMAIL_VERIFY_MESSAGE){ // email not verified
-                    document.location.href = '/confirm-your-email';
+                    document.location.href = `/${SLUGS['confirm-your-email']}`;
                 }
                 console.log(error);
                 Utils.showError('The email/password you entered was incorrect');
@@ -223,9 +223,9 @@ class SelectPasswordPage extends Page{
             const data = await bcUser.loginUser(email, password, true);
             if(data && data.newUser === "false"){
                 if (!bcUser.userData.emailVerified){
-                    document.location.href = '/confirm-your-email';
+                    document.location.href = `/${SLUGS['confirm-your-email']}`;
                 }
-                document.location.href = '/';
+                document.location.href = `/${SLUGS['dashboard']}`;
             } else {
                 const username = Utils.readLS('username');
                 if (username){
@@ -235,7 +235,7 @@ class SelectPasswordPage extends Page{
             }
         }catch(error){
             if (error === Utils.EMAIL_VERIFY_MESSAGE){
-                document.location.href = '/confirm-your-email';
+                document.location.href = `/${SLUGS['confirm-your-email']}`;
             }
 
             console.log(error);
@@ -568,7 +568,7 @@ class AvatarPage extends Page{
     handleNext(event){
         event.preventDefault();
         if (bcUser.isUserLoggedIn()){
-            document.location.href = '/profile';
+            document.location.href = `/${SLUGS['profile']}`;
         }else{
             document.location.href = $('#next-button').attr('href');
         }
