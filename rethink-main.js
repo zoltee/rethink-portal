@@ -478,7 +478,10 @@ class Utils{
 	}
 
 	static redirectToLogin(){
-		document.location.href = `/${SLUGS['authenticate']}`;
+		// don't redirect if already on the authenticate page
+		if (!document.location.href.endsWith(`/${SLUGS['authenticate']}`)){
+			document.location.href = `/${SLUGS['authenticate']}`;
+		}
 	}
 
 	static applyProfileURL(url, customized = false){
