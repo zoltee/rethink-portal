@@ -536,6 +536,9 @@ class AvatarPage extends Page{
             this.setAvatarURL($avatarWrapper.find('.sample-avatar').attr('src'), false);
             this.setGLB('');
         });
+        $('#custom-avatar').click(event => {
+            this.setAvatarURL(event.currentTarget.src, true);
+        })
     }
     markSelectedAvatar($swiperWrapper){
         let selectedIndex = null;
