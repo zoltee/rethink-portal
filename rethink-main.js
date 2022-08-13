@@ -409,6 +409,7 @@ class BCUser{
 				if(await this.interpretStatus(result, true)){
 					console.log('set avatar result', result);
 					this.user.pictureUrl = result.data.playerPictureUrl;
+					Utils.writeJSONLS("BC-User", this.user);
 					Utils.applyProfileURL(avatarURL, customized);
 					resolve(result.data.playerPictureUrl);
 				}else{
