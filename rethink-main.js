@@ -68,9 +68,10 @@ class BCUser{
 			}
 			this.user = data;
 			if (this.user.pictureUrl) {
-				this.readAttribute('avatarGLB').then(glbURL=> {
+				Utils.applyProfileURL(this.user.pictureUrl);
+				/*this.readAttribute('avatarGLB').then(glbURL=> {
 					Utils.applyProfileURL(this.user.pictureUrl, glbURL?.length > 0);
-				});
+				});*/
 			}
 			/*this.refreshIdentities().then(identities=>{
 				console.log('loaded identities');
