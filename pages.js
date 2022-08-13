@@ -529,15 +529,18 @@ class AvatarPage extends Page{
         const selectedIndex = this.markSelectedAvatar($swiperWrapper);
         if (selectedIndex !== null){
             this.swiper.slideToLoop(Math.max(selectedIndex - 1, 0), 500, false);
+        }else{
+
         }
         $swiperWrapper.on('click', '.swiper-slide',event => {
             event.preventDefault();
             const $avatarWrapper = $(event.currentTarget);
             this.setAvatarURL($avatarWrapper.find('.sample-avatar').attr('src'), false);
-            this.setGLB('');
+            // this.setGLB('');
         });
         $('#custom-avatar').click(event => {
             this.setAvatarURL(event.currentTarget.src, true);
+            $('.custom-avatar-container').addClass('selected');
         })
     }
     markSelectedAvatar($swiperWrapper){
@@ -555,9 +558,10 @@ class AvatarPage extends Page{
             }
         });
         if (selectedIndex === null){
-            bcUser.readAttribute('avatarGLB').then(hasGLB =>{
+            $('.custom-avatar-container').addClass('selected');
+            /* bcUser.readAttribute('avatarGLB').then(hasGLB =>{
                 $('.custom-avatar-container').toggleClass('selected',hasGLB);
-            });
+            });*/
 
         }
         return selectedIndex;
